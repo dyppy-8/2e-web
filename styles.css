@@ -148,7 +148,8 @@ img {
 }
 
 .auth-paper {
-  width: min(100%, 410px);
+  width: min(calc(100vw - 2.2rem), 410px);
+  max-width: 100%;
   padding: 1.35rem;
   border: 2px solid rgba(42, 31, 61, 0.34);
   border-radius: 8px;
