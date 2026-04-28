@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>2E</title>
+    <meta name="description" content="2E için ortak liste ve özel günlük.">
+    <meta name="theme-color" content="#f4ecd9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="2E">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="apple-touch-icon" href="./pwa-icon-180.png">
+    <link rel="preload" href="./real_app_logo.png" as="image">
+    <link rel="preload" href="./in_app_icon.png" as="image">
+    <link rel="stylesheet" href="./styles.css?v=14">
+  </head>
+  <body>
+    <div class="paper-bg" aria-hidden="true"></div>
+    <div class="paper-grain" aria-hidden="true"></div>
+    <div class="paper-lines" aria-hidden="true"></div>
+
+    <section id="boot-screen" class="boot-screen" aria-live="polite">
+      <div class="boot-mark">
+        <img src="./real_app_logo.png" alt="2E">
+      </div>
+    </section>
+
+    <main id="auth-view" class="auth-view" hidden>
+      <section class="auth-paper" aria-labelledby="auth-title">
+        <img class="auth-logo" src="./real_app_logo.png" alt="">
+        <p class="kicker">ortak defter</p>
+        <h1 id="auth-title">2E</h1>
+        <p class="auth-copy">listeye ve günlüğe devam etmek için giriş yap.</p>
+
+        <form id="password-form" class="auth-form">
+          <label class="field">
+            <span>E-posta</span>
+            <input id="pw-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="sen@ornek.com" required>
+          </label>
+          <label class="field">
+            <span>Şifre</span>
+            <input id="pw-pass" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required>
+          </label>
+          <button class="button button-primary" type="submit">Giriş</button>
+          <button class="button button-link" type="button" id="switch-to-magic">Şifremi unuttum</button>
+        </form>
+
+        <form id="magic-form" class="auth-form" hidden>
+          <label class="field">
+            <span>E-posta</span>
+            <input id="magic-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="sen@ornek.com" required>
+          </label>
+          <button class="button button-primary" type="submit">Bağlantı gönder</button>
+          <button class="button button-link" type="button" id="switch-to-password">Şifre ile giriş</button>
+        </form>
+      </section>
+    </main>
+
+    <main id="app-shell" class="app-shell" hidden>
+      <header class="app-header">
+        <img class="header-logo" src="./in_app_icon.png" alt="2E">
+        <div class="header-title">
+          <span id="header-kicker">ortak liste</span>
+          <strong id="header-name">2E</strong>
+        </div>
+        <button id="settings-open" class="icon-button" type="button" aria-label="Ayarlar">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9.67 4.14a2.34 2.34 0 0 1 4.66 0 2.34 2.34 0 0 0 3.32 1.91 2.34 2.34 0 0 1 2.33 4.04 2.34 2.34 0 0 0 0 3.82 2.34 2.34 0 0 1-2.33 4.04 2.34 2.34 0 0 0-3.32 1.91 2.34 2.34 0 0 1-4.66 0 2.34 2.34 0 0 0-3.32-1.91 2.34 2.34 0 0 1-2.33-4.04 2.34 2.34 0 0 0 0-3.82 2.34 2.34 0 0 1 2.33-4.04 2.34 2.34 0 0 0 3.32-1.91Z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </header>
+
+      <section id="todo-panel" class="panel active" aria-labelledby="todo-title">
+        <div class="panel-scroll">
+          <div class="section-head">
+            <div>
+              <p class="kicker">ortak</p>
+              <h2 id="todo-title">Liste</h2>
+            </div>
+            <button id="refresh-todos" class="round-button" type="button" aria-label="Yenile">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 6v5h-5M4 18v-5h5M18.2 9A7 7 0 0 0 6.3 6.8M5.8 15a7 7 0 0 0 11.9 2.2"/>
+              </svg>
+            </button>
+          </div>
+
+          <form id="todo-form" class="composer">
+            <label class="sr-only" for="todo-input">Görev ekle</label>
+            <input id="todo-input" name="todo" type="text" maxlength="240" autocomplete="off" placeholder="Bir aktivite ekle..." required>
+            <button class="button button-primary" type="submit">Ekle</button>
+          </form>
+
+          <div class="feed-meta">
+            <span id="todo-count">0 öğe</span>
+            <span id="sync-state">hazır</span>
+          </div>
+
+          <ul id="todo-list" class="todo-list" aria-live="polite"></ul>
+          <p id="empty-todos" class="empty-state">Henüz hiçbir şey yok.</p>
+        </div>
+      </section>
+
+      <section id="journal-panel" class="panel" aria-labelledby="journal-title">
+        <div class="panel-scroll">
+          <div class="section-head">
+            <div>
+              <p class="kicker">özel</p>
+              <h2 id="journal-title">Günlük</h2>
+              <p class="privacy-note">günlük yazıların sadece telefona kaydedilir ve sana özeldir.</p>
+            </div>
+          </div>
+
+          <article class="journal-card">
+            <div class="journal-top">
+              <div>
+                <p class="journal-date" id="journal-date">Bugün</p>
+                <p class="journal-start" id="journal-start">--:--</p>
+              </div>
+              <button id="save-journal" class="button button-primary small" type="button">Not al</button>
+            </div>
+            <label class="sr-only" for="journal-body">Günlük yazısı</label>
+            <textarea id="journal-body" maxlength="5000" spellcheck="true" placeholder="Bugün neler oldu?"></textarea>
+          </article>
+
+          <div class="feed-meta journal-meta">
+            <span>son yazılar</span>
+            <span id="journal-count">0 kayıt</span>
+          </div>
+          <ul id="journal-list" class="journal-list"></ul>
+          <p id="empty-journal" class="empty-state">Bugüne bir şey yazılmadı.</p>
+        </div>
+      </section>
+
+      <nav class="bottom-tabs" aria-label="Alt menü">
+        <button class="tab active" type="button" data-tab="todo">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 6h10M9 12h10M9 18h10M4 6l1.45 1.45L8 4.8M4 12l1.45 1.45L8 10.8M4 18l1.45 1.45L8 16.8"/>
+          </svg>
+          <span>Liste</span>
+        </button>
+        <button class="tab" type="button" data-tab="journal">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 4h12v16H6zM9 8h6M9 12h6M9 16h4"/>
+          </svg>
+          <span>Günlük</span>
+        </button>
+      </nav>
+    </main>
+
+    <aside id="settings-sheet" class="sheet" aria-hidden="true">
+      <div class="sheet-backdrop" data-close-settings></div>
+      <section class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <div class="sheet-grip"></div>
+        <div class="sheet-head">
+          <div>
+            <p class="kicker">hesap</p>
+            <h2 id="settings-title">Ayarlar</h2>
+          </div>
+          <button class="round-button" type="button" data-close-settings aria-label="Kapat">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="profile-line">
+          <img id="settings-person-mark" class="settings-person-mark" src="./in_app_e_pink.png" alt="">
+          <div>
+            <span id="settings-name">-</span>
+            <small>giriş yapıldı</small>
+          </div>
+        </div>
+
+        <label class="toggle-line">
+          <input id="notify-toggle" type="checkbox">
+          <span>
+            <strong>Bildirim</strong>
+            <small>listeye eklenen aktivitelerden anında haberdar olmak için bildirimleri açabilirsin.</small>
+          </span>
+        </label>
+
+        <form id="password-change-form" class="password-box">
+          <label class="field">
+            <span>Yeni şifre</span>
+            <input id="new-password" name="new-password" type="password" autocomplete="new-password" minlength="6" placeholder="en az 6 karakter">
+          </label>
+          <button class="button button-secondary" type="submit">Şifreni değiştir</button>
+        </form>
+
+        <button id="sign-out" class="button button-danger" type="button">Çıkış yap</button>
+      </section>
+    </aside>
+
+    <template id="todo-template">
+      <li class="todo-item">
+        <button class="todo-check" type="button" aria-label="Tamamla">
+          <svg viewBox="0 0 36 36" aria-hidden="true">
+            <rect x="7" y="7" width="22" height="22" rx="5"></rect>
+            <path d="M10.5 18.5 Q14 16 16.4 21 Q20.2 26 27 11"></path>
+          </svg>
+        </button>
+        <div class="todo-main">
+          <p class="todo-text"></p>
+          <div class="todo-details">
+            <span class="todo-person"></span>
+            <span class="todo-date"></span>
+          </div>
+        </div>
+        <button class="delete-item" type="button" aria-label="Sil">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 7h12M9 7V5h6v2M9 10v8M15 10v8M8 7l1 13h6l1-13"/>
+          </svg>
+        </button>
+      </li>
+    </template>
+
+    <template id="journal-template">
+      <li class="journal-entry">
+        <button class="journal-open" type="button">
+          <strong></strong>
+          <span></span>
+        </button>
+        <button class="delete-item journal-delete" type="button" aria-label="Günlüğü sil">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 7h12M9 7V5h6v2M9 10v8M15 10v8M8 7l1 13h6l1-13"/>
+          </svg>
+        </button>
+      </li>
+    </template>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script src="./config.js?v=12"></script>
+    <script type="module" src="./app.js?v=14"></script>
+  </body>
+</html>
