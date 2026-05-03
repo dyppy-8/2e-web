@@ -285,7 +285,7 @@ textarea::placeholder {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease, opacity 140ms ease;
+  transition: transform 160ms cubic-bezier(.2,.8,.2,1), box-shadow 160ms ease, background 160ms ease, opacity 160ms ease;
 }
 
 .button:disabled {
@@ -404,7 +404,7 @@ textarea::placeholder {
   border-radius: 999px;
   background: rgba(255, 251, 240, 0.82);
   box-shadow: 3px 3px 0 rgba(42, 31, 61, 0.11);
-  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+  transition: transform 160ms cubic-bezier(.2,.8,.2,1), box-shadow 160ms ease, background 160ms ease, color 160ms ease, border-color 160ms ease;
 }
 
 .icon-button svg,
@@ -615,6 +615,7 @@ textarea::placeholder {
   border-radius: 999px;
   background: transparent;
   color: rgba(42, 31, 61, 0.46);
+  transition: transform 160ms cubic-bezier(.2,.8,.2,1), background 160ms ease, color 160ms ease;
 }
 
 .delete-item:active {
@@ -682,7 +683,8 @@ textarea::placeholder {
   grid-template-columns: minmax(0, 1fr) 38px;
   align-items: center;
   gap: 0.55rem;
-  transition: transform 180ms ease, opacity 180ms ease;
+  animation: noteCardIn 320ms cubic-bezier(.2,.8,.2,1) both;
+  transition: transform 210ms cubic-bezier(.2,.8,.2,1), opacity 180ms ease;
 }
 
 .journal-entry.removing {
@@ -691,16 +693,30 @@ textarea::placeholder {
 }
 
 .journal-entry .journal-open {
+  position: relative;
   width: 100%;
   display: grid;
   gap: 0.22rem;
   padding: 0.75rem 0.9rem;
   border: 2px solid rgba(42, 31, 61, 0.14);
   border-radius: 8px;
-  background: rgba(255, 251, 240, 0.74);
+  background:
+    linear-gradient(90deg, rgba(90, 167, 216, 0.18) 0, rgba(90, 167, 216, 0.18) 4px, transparent 4px),
+    rgba(255, 251, 240, 0.78);
   box-shadow: 3px 3px 0 rgba(42, 31, 61, 0.07);
   text-align: left;
-  transition: transform 140ms ease, border-color 140ms ease;
+  overflow: hidden;
+  transition: transform 180ms cubic-bezier(.2,.8,.2,1), border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.journal-entry .journal-open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.42) 42%, transparent 72%);
+  opacity: 0;
+  transform: translateX(-80%);
+  transition: opacity 180ms ease, transform 520ms cubic-bezier(.2,.8,.2,1);
 }
 
 .journal-entry .journal-open:active {
@@ -714,14 +730,150 @@ textarea::placeholder {
 .journal-entry strong {
   font-family: 'Caveat', cursive;
   font-size: 1.22rem;
+  line-height: 1.05;
 }
 
 .journal-entry span {
   overflow: hidden;
   color: var(--ink-soft);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.journal-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 46;
+  display: grid;
+  place-items: center;
+  padding: calc(1rem + var(--safe-top)) 1rem calc(1rem + var(--safe-bottom));
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s linear 300ms;
+}
+
+.journal-modal.open {
+  pointer-events: auto;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.journal-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(42, 31, 61, 0.32);
+  opacity: 0;
+  backdrop-filter: blur(0);
+  transition: opacity 280ms ease, backdrop-filter 280ms ease;
+}
+
+.journal-modal.open .journal-modal-backdrop {
+  opacity: 1;
+  backdrop-filter: blur(7px);
+}
+
+.journal-modal-paper {
+  position: relative;
+  width: min(calc(100vw - 2rem), 430px);
+  max-height: min(78vh, 720px);
+  overflow: hidden;
+  padding: 0.85rem 1rem 1.05rem;
+  border: 2px solid rgba(42, 31, 61, 0.28);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(210, 98, 128, 0.22) 0, rgba(210, 98, 128, 0.22) 2px, transparent 2px) 42px 0 / 1px 100% no-repeat,
+    repeating-linear-gradient(#fff5cf 0, #fff5cf 31px, rgba(68, 89, 140, 0.14) 32px),
+    #fff4c9;
+  box-shadow: 0 22px 48px rgba(42, 31, 61, 0.28), 7px 8px 0 rgba(42, 31, 61, 0.12);
+  opacity: 0;
+  transform: translateY(28px) scale(0.92) rotate(-3deg);
+  transition: opacity 260ms ease, transform 320ms cubic-bezier(.2,.8,.2,1);
+}
+
+.journal-modal-paper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.58), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 35%);
+  mix-blend-mode: screen;
+}
+
+.journal-modal-paper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.3;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
+}
+
+.journal-modal.open .journal-modal-paper {
+  opacity: 1;
+  transform: translateY(0) scale(1) rotate(-0.45deg);
+  animation: paperSettle 720ms cubic-bezier(.18,.9,.2,1) both;
+}
+
+.journal-modal-actions,
+.journal-modal-paper .kicker,
+.journal-modal-paper h2,
+.journal-modal-time,
+.journal-modal-body {
+  position: relative;
+  z-index: 1;
+}
+
+.journal-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.journal-modal-actions .round-button {
+  width: 42px;
+  height: 42px;
+  background: rgba(255, 249, 226, 0.86);
+}
+
+.danger-icon {
+  color: var(--danger);
+  border-color: rgba(182, 83, 83, 0.32);
+}
+
+.journal-modal-paper h2 {
+  margin-bottom: 0.12rem;
+  font-size: 2.15rem;
+}
+
+.journal-modal-time {
+  margin: 0 0 0.75rem;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.journal-modal-body {
+  max-height: min(48vh, 460px);
+  overflow-y: auto;
+  padding: 0.4rem 0.15rem 0.25rem 2.6rem;
+  color: #2c2442;
+  font-family: 'Caveat', cursive;
+  font-size: clamp(1.55rem, 6vw, 2rem);
+  font-weight: 600;
+  line-height: 32px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  animation: inkReveal 520ms ease 180ms both;
 }
 
 .bottom-tabs {
@@ -959,14 +1111,63 @@ textarea::placeholder {
   display: none !important;
 }
 
+@media (hover: hover) {
+  .button:hover,
+  .round-button:hover,
+  .icon-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 5px 5px 0 rgba(42, 31, 61, 0.14);
+  }
+
+  .todo-item:hover,
+  .journal-entry:hover {
+    transform: translateY(-2px) rotate(-0.18deg);
+  }
+
+  .journal-entry .journal-open:hover {
+    border-color: rgba(90, 167, 216, 0.34);
+    background:
+      linear-gradient(90deg, rgba(90, 167, 216, 0.24) 0, rgba(90, 167, 216, 0.24) 4px, transparent 4px),
+      rgba(255, 251, 240, 0.92);
+    box-shadow: 5px 5px 0 rgba(42, 31, 61, 0.1);
+  }
+
+  .journal-entry .journal-open:hover::after {
+    opacity: 1;
+    transform: translateX(80%);
+  }
+
+  .delete-item:hover,
+  .danger-icon:hover {
+    background: rgba(182, 83, 83, 0.1);
+    color: var(--danger);
+  }
+}
+
 @keyframes itemIn {
   from { opacity: 0; transform: translateY(10px) scale(0.98) rotate(-0.4deg); }
+  to { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+}
+
+@keyframes noteCardIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.97) rotate(0.4deg); }
   to { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
 }
 
 @keyframes pageIn {
   from { opacity: 0; transform: translateY(16px) rotate(-0.6deg); }
   to { opacity: 1; transform: translateY(0) rotate(-0.25deg); }
+}
+
+@keyframes paperSettle {
+  0% { opacity: 0; transform: translateY(30px) scale(0.9) rotate(-4deg); }
+  55% { opacity: 1; transform: translateY(-5px) scale(1.018) rotate(0.8deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(-0.45deg); }
+}
+
+@keyframes inkReveal {
+  from { opacity: 0; transform: translateY(10px); filter: blur(2px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 @keyframes spinRefresh {
@@ -1017,6 +1218,10 @@ textarea::placeholder {
 
   .toast.show {
     transform: translate(-50%, 0);
+  }
+
+  .journal-modal-paper {
+    max-height: min(82vh, 760px);
   }
 }
 

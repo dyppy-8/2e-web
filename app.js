@@ -49,6 +49,11 @@ const els = {
   journalTemplate: document.querySelector("#journal-template"),
   journalCount: document.querySelector("#journal-count"),
   emptyJournal: document.querySelector("#empty-journal"),
+  journalModal: document.querySelector("#journal-modal"),
+  journalModalTitle: document.querySelector("#journal-modal-title"),
+  journalModalTime: document.querySelector("#journal-modal-time"),
+  journalModalBody: document.querySelector("#journal-modal-body"),
+  journalModalDelete: document.querySelector("#journal-modal-delete"),
   toast: document.querySelector("#toast"),
 };
 
@@ -61,6 +66,7 @@ let settings = { notify_new_items: true };
 let todosChannel;
 let pushListenersBound = false;
 let activeJournal = freshJournalDraft();
+let selectedJournal = null;
 let toastTimer;
 
 bindEvents();
@@ -124,6 +130,22 @@ function bindEvents() {
   els.settingsOpen.addEventListener("click", openSettings);
   document.querySelectorAll("[data-close-settings]").forEach((button) => {
     button.addEventListener("click", closeSettings);
+  });
+
+  document.querySelectorAll("[data-close-journal]").forEach((button) => {
+    button.addEventListener("click", closeJournalModal);
+  });
+
+  els.journalModalDelete.addEventListener("click", () => {
+    if (!selectedJournal) return;
+    deleteJournalEntry(selectedJournal.id);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeJournalModal();
+      closeSettings();
+    }
   });
 
   document.querySelectorAll(".tab").forEach((tab) => {
@@ -465,9 +487,8 @@ async function saveJournal() {
   saveLocalJournals(entries);
   restoreButton(els.saveJournal);
 
-  activeJournal = payload;
-  updateJournalHeader();
   renderJournalList();
+  startNewJournal(false);
   showToast("Günlük bu telefona kaydedildi.");
 }
 
@@ -492,23 +513,39 @@ function appendJournalEntry(entry) {
   const preview = fragment.querySelector("span");
 
   item.dataset.id = entry.id;
-  title.textContent = formatFullDate(entry.started_at);
-  preview.textContent = entry.body.replace(/\s+/g, " ").slice(0, 120) || "boş sayfa";
-  openButton.addEventListener("click", () => {
-    activeJournal = entry;
-    els.journalBody.value = entry.body;
-    updateJournalHeader();
-    els.journalBody.focus();
-  });
+  title.textContent = formatJournalDate(entry.started_at);
+  preview.textContent = formatTime(entry.started_at);
+  openButton.addEventListener("click", () => openJournalModal(entry));
   deleteButton.addEventListener("click", () => deleteJournalEntry(entry.id, item));
 
   els.journalList.appendChild(fragment);
 }
 
-function deleteJournalEntry(id, item) {
+function openJournalModal(entry) {
+  selectedJournal = entry;
+  els.journalModalTitle.textContent = formatDetailedDate(entry.started_at);
+  els.journalModalTime.textContent = formatTime(entry.started_at);
+  els.journalModalBody.textContent = entry.body || "";
+  els.journalModal.classList.add("open");
+  els.journalModal.setAttribute("aria-hidden", "false");
+  els.journalModalDelete.focus({ preventScroll: true });
+}
+
+function closeJournalModal() {
+  if (!els.journalModal.classList.contains("open")) return;
+  els.journalModal.classList.remove("open");
+  els.journalModal.setAttribute("aria-hidden", "true");
+  selectedJournal = null;
+}
+
+function deleteJournalEntry(id, item = null) {
   const entries = loadLocalJournals().filter((entry) => entry.id !== id);
   saveLocalJournals(entries);
-  item.classList.add("removing");
+  item?.classList.add("removing");
+
+  if (selectedJournal?.id === id) {
+    closeJournalModal();
+  }
 
   if (activeJournal.id === id) {
     startNewJournal(false);
@@ -517,7 +554,7 @@ function deleteJournalEntry(id, item) {
   setTimeout(() => {
     renderJournalList();
     showToast("Günlük silindi.");
-  }, 170);
+  }, item ? 190 : 120);
 }
 
 function updateJournalHeader() {
@@ -700,6 +737,23 @@ function formatFullDate(value) {
     weekday: "long",
     day: "2-digit",
     month: "long",
+  }).format(new Date(value));
+}
+
+function formatDetailedDate(value) {
+  return new Intl.DateTimeFormat("tr-TR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(value));
+}
+
+function formatJournalDate(value) {
+  return new Intl.DateTimeFormat("tr-TR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
   }).format(new Date(value));
 }
 

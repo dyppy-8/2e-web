@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="./pwa-icon-180.png">
     <link rel="preload" href="./real_app_logo.png" as="image">
     <link rel="preload" href="./in_app_icon.png" as="image">
-    <link rel="stylesheet" href="./styles.css?v=15">
+    <link rel="stylesheet" href="./styles.css?v=16">
   </head>
   <body>
     <div class="paper-bg" aria-hidden="true"></div>
@@ -108,7 +108,7 @@
             <div>
               <p class="kicker">özel</p>
               <h2 id="journal-title">Günlük</h2>
-              <p class="privacy-note">günlük yazıların sadece telefona kaydedilir ve sana özeldir.</p>
+              <p class="privacy-note">günlük olayları kaydedebileceğin kişisel not defteri.</p>
             </div>
           </div>
 
@@ -193,6 +193,28 @@
       </section>
     </aside>
 
+    <aside id="journal-modal" class="journal-modal" aria-hidden="true">
+      <div class="journal-modal-backdrop" data-close-journal></div>
+      <section class="journal-modal-paper" role="dialog" aria-modal="true" aria-labelledby="journal-modal-title">
+        <div class="journal-modal-actions">
+          <button id="journal-modal-delete" class="round-button danger-icon" type="button" aria-label="Günlüğü sil">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 7h12M9 7V5h6v2M9 10v8M15 10v8M8 7l1 13h6l1-13"/>
+            </svg>
+          </button>
+          <button class="round-button" type="button" data-close-journal aria-label="Kapat">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18"/>
+            </svg>
+          </button>
+        </div>
+        <p class="kicker">günlük</p>
+        <h2 id="journal-modal-title">Günlük</h2>
+        <p id="journal-modal-time" class="journal-modal-time"></p>
+        <div id="journal-modal-body" class="journal-modal-body"></div>
+      </section>
+    </aside>
+
     <template id="todo-template">
       <li class="todo-item">
         <button class="todo-check" type="button" aria-label="Tamamla">
@@ -233,6 +255,6 @@
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script src="./config.js?v=12"></script>
-    <script type="module" src="./app.js?v=15"></script>
+    <script type="module" src="./app.js?v=16"></script>
   </body>
 </html>
