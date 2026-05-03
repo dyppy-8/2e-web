@@ -785,9 +785,11 @@ textarea::placeholder {
   border: 2px solid rgba(42, 31, 61, 0.28);
   border-radius: 8px;
   background:
-    linear-gradient(90deg, rgba(210, 98, 128, 0.22) 0, rgba(210, 98, 128, 0.22) 2px, transparent 2px) 42px 0 / 1px 100% no-repeat,
-    repeating-linear-gradient(#fbf3e4 0, #fbf3e4 31px, rgba(68, 89, 140, 0.1) 32px),
-    #f8edda;
+    linear-gradient(90deg, rgba(201, 107, 138, 0.14) 0, rgba(201, 107, 138, 0.14) 2px, transparent 2px) 42px 0 / 1px 100% no-repeat,
+    repeating-linear-gradient(transparent 0, transparent 31px, rgba(42, 31, 61, 0.065) 32px),
+    radial-gradient(circle at 18% 8%, rgba(255, 248, 222, 0.38), transparent 34%),
+    radial-gradient(circle at 82% 92%, rgba(224, 210, 185, 0.34), transparent 38%),
+    linear-gradient(145deg, #f8f0dd 0%, #eee2c8 100%);
   box-shadow: 0 22px 48px rgba(42, 31, 61, 0.28), 7px 8px 0 rgba(42, 31, 61, 0.12);
   opacity: 0;
   transform: translateY(28px) scale(0.92) rotate(-3deg);
@@ -800,9 +802,9 @@ textarea::placeholder {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.58), transparent 28%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 35%);
-  mix-blend-mode: screen;
+    linear-gradient(90deg, transparent 0, transparent 41px, rgba(201, 107, 138, 0.08) 42px, transparent 43px),
+    linear-gradient(180deg, rgba(42, 31, 61, 0.025), transparent 42%);
+  opacity: 0.7;
 }
 
 .journal-modal-paper::after {
@@ -810,7 +812,7 @@ textarea::placeholder {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.3;
+  opacity: 0.24;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
 }
 
