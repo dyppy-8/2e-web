@@ -14,6 +14,26 @@
     <link rel="preload" href="./real_app_logo.png" as="image">
     <link rel="preload" href="./in_app_icon.png" as="image">
     <link rel="stylesheet" href="./styles.css?v=18">
+    <style id="journal-paper-tone">
+      .journal-modal-paper {
+        background:
+          linear-gradient(90deg, rgba(201, 107, 138, 0.14) 0, rgba(201, 107, 138, 0.14) 2px, transparent 2px) 42px 0 / 1px 100% no-repeat,
+          repeating-linear-gradient(transparent 0, transparent 31px, rgba(42, 31, 61, 0.065) 32px),
+          radial-gradient(circle at 18% 8%, rgba(255, 248, 222, 0.38), transparent 34%),
+          radial-gradient(circle at 82% 92%, rgba(224, 210, 185, 0.34), transparent 38%),
+          linear-gradient(145deg, #f8f0dd 0%, #eee2c8 100%);
+      }
+      .journal-modal-paper::before {
+        background:
+          linear-gradient(90deg, transparent 0, transparent 41px, rgba(201, 107, 138, 0.08) 42px, transparent 43px),
+          linear-gradient(180deg, rgba(42, 31, 61, 0.025), transparent 42%);
+        mix-blend-mode: normal;
+        opacity: 0.7;
+      }
+      .journal-modal-paper::after {
+        opacity: 0.24;
+      }
+    </style>
   </head>
   <body>
     <div class="paper-bg" aria-hidden="true"></div>
