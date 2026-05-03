@@ -786,8 +786,8 @@ textarea::placeholder {
   border-radius: 8px;
   background:
     linear-gradient(90deg, rgba(210, 98, 128, 0.22) 0, rgba(210, 98, 128, 0.22) 2px, transparent 2px) 42px 0 / 1px 100% no-repeat,
-    repeating-linear-gradient(#fff5cf 0, #fff5cf 31px, rgba(68, 89, 140, 0.14) 32px),
-    #fff4c9;
+    repeating-linear-gradient(#fbf3e4 0, #fbf3e4 31px, rgba(68, 89, 140, 0.1) 32px),
+    #f8edda;
   box-shadow: 0 22px 48px rgba(42, 31, 61, 0.28), 7px 8px 0 rgba(42, 31, 61, 0.12);
   opacity: 0;
   transform: translateY(28px) scale(0.92) rotate(-3deg);

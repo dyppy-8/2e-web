@@ -1,8 +1,8 @@
-const CACHE_NAME = "2e-pwa-v3";
+const CACHE_NAME = "2e-pwa-v4";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=16",
+  "./styles.css?v=17",
   "./app.js?v=16",
   "./config.js?v=12",
   "./manifest.webmanifest",
