@@ -121,8 +121,13 @@ function bindEvents() {
     await saveUserSettings();
     if (settings.notify_new_items) {
       await registerPushToken();
+      if (typeof Notification !== "undefined" && Notification.permission === "default") {
+        try { await Notification.requestPermission(); } catch {}
+        localStorage.setItem("web_notif_asked", "1");
+      }
     } else {
       await disableDeviceTokens();
+      await unsubscribeWebPush();
     }
     showToast(settings.notify_new_items ? "Bildirimler açık." : "Bildirimler kapalı.");
   });
@@ -207,6 +212,7 @@ async function showApp(session) {
 
   if (settings.notify_new_items) {
     registerPushToken();
+    requestWebNotificationPermission();
   }
 }
 
@@ -593,8 +599,119 @@ function subscribeRealtime() {
   unsubscribeRealtime();
   todosChannel = supabase
     .channel("shared-todos")
-    .on("postgres_changes", { event: "*", schema: "public", table: "todos" }, () => renderTodos())
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "todos" }, (payload) => {
+      const row = payload?.new;
+      if (row && currentUser && row.created_by && row.created_by !== currentUser.id) {
+        showWebNotification(row);
+      }
+      renderTodos();
+    })
+    .on("postgres_changes", { event: "UPDATE", schema: "public", table: "todos" }, () => renderTodos())
+    .on("postgres_changes", { event: "DELETE", schema: "public", table: "todos" }, () => renderTodos())
     .subscribe();
+}
+
+function showWebNotification(todo) {
+  if (!settings.notify_new_items) return;
+  if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
+  const title = todo.added_by ? `${todo.added_by} yeni bir şey ekledi` : "Yeni bir şey eklendi";
+  const body = todo.body || "";
+  try {
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.ready.then((reg) => {
+        reg.showNotification(title, {
+          body,
+          icon: "./pwa-icon-192.png",
+          badge: "./pwa-icon-192.png",
+          tag: `todo-${todo.id}`,
+        }).catch(() => undefined);
+      });
+    } else {
+      new Notification(title, { body, icon: "./pwa-icon-192.png" });
+    }
+  } catch {}
+}
+
+async function requestWebNotificationPermission() {
+  if (typeof Notification === "undefined") return;
+  if (window.Capacitor?.isNativePlatform?.()) return;
+
+  const alreadyAsked = localStorage.getItem("web_notif_asked") === "1";
+
+  if (Notification.permission === "default" && !alreadyAsked) {
+    try { await Notification.requestPermission(); } catch {}
+    localStorage.setItem("web_notif_asked", "1");
+  }
+
+  if (Notification.permission === "granted") {
+    await subscribeWebPush();
+  }
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(base64);
+  const out = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+  return out;
+}
+
+function arrayBufferToBase64(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+
+async function subscribeWebPush() {
+  try {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+    if (!currentUser) return;
+    const vapidPublic = window.APP_CONFIG?.VAPID_PUBLIC_KEY;
+    if (!vapidPublic) return;
+
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublic),
+      });
+    }
+
+    const json = sub.toJSON();
+    const p256dh = json.keys?.p256dh;
+    const auth = json.keys?.auth;
+    if (!json.endpoint || !p256dh || !auth) return;
+
+    await supabase.from("web_push_subscriptions").upsert({
+      user_id: currentUser.id,
+      endpoint: json.endpoint,
+      p256dh,
+      auth,
+      user_agent: navigator.userAgent,
+      enabled: true,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "endpoint" });
+  } catch (err) {
+    console.warn("web push subscribe failed", err);
+  }
+}
+
+async function unsubscribeWebPush() {
+  try {
+    if (!("serviceWorker" in navigator)) return;
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (!sub) return;
+    if (currentUser) {
+      await supabase
+        .from("web_push_subscriptions")
+        .update({ enabled: false, updated_at: new Date().toISOString() })
+        .eq("endpoint", sub.endpoint);
+    }
+  } catch {}
 }
 
 function unsubscribeRealtime() {

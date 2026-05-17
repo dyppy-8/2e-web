@@ -1,10 +1,10 @@
-const CACHE_NAME = "2e-pwa-v5";
+const CACHE_NAME = "2e-pwa-v7";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css?v=18",
-  "./app.js?v=16",
-  "./config.js?v=12",
+  "./app.js?v=18",
+  "./config.js?v=13",
   "./manifest.webmanifest",
   "./pwa-icon-180.png",
   "./pwa-icon-192.png",
@@ -47,6 +47,35 @@ self.addEventListener("activate", (event) => {
       ))
       .then(() => self.clients.claim())
   );
+});
+
+self.addEventListener("push", (event) => {
+  let payload = {};
+  if (event.data) {
+    try { payload = event.data.json(); }
+    catch { payload = { title: "2E", body: event.data.text() }; }
+  }
+  const title = payload.title || "2E";
+  const options = {
+    body: payload.body || "",
+    icon: payload.icon || "./pwa-icon-192.png",
+    badge: payload.badge || "./pwa-icon-192.png",
+    tag: payload.tag || "2e-push",
+    data: payload.data || {},
+    renotify: true,
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil((async () => {
+    const allClients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    for (const client of allClients) {
+      if ("focus" in client) return client.focus();
+    }
+    if (self.clients.openWindow) return self.clients.openWindow("./");
+  })());
 });
 
 self.addEventListener("fetch", (event) => {
