@@ -124,7 +124,9 @@ function bindEvents() {
       if (typeof Notification !== "undefined") {
         if (Notification.permission === "default") {
           try { await Notification.requestPermission(); } catch {}
-          localStorage.setItem("web_notif_asked", "1");
+          if (Notification.permission !== "default") {
+            localStorage.setItem("web_notif_asked_v2", "1");
+          }
         }
         if (Notification.permission === "granted") {
           await subscribeWebPush();
@@ -651,11 +653,13 @@ async function maybePromptNotificationPermission() {
   if (typeof Notification === "undefined") return;
   if (window.Capacitor?.isNativePlatform?.()) return;
   if (Notification.permission !== "default") return;
-  if (localStorage.getItem("web_notif_asked") === "1") return;
+  if (localStorage.getItem("web_notif_asked_v2") === "1") return;
   try {
     await Notification.requestPermission();
   } catch {}
-  localStorage.setItem("web_notif_asked", "1");
+  if (Notification.permission !== "default") {
+    localStorage.setItem("web_notif_asked_v2", "1");
+  }
   if (Notification.permission === "granted") {
     subscribeWebPush();
   }
@@ -667,7 +671,7 @@ function armFirstGesturePrompt() {
   if (typeof Notification === "undefined") return;
   if (window.Capacitor?.isNativePlatform?.()) return;
   if (Notification.permission !== "default") return;
-  if (localStorage.getItem("web_notif_asked") === "1") return;
+  if (localStorage.getItem("web_notif_asked_v2") === "1") return;
   firstGestureArmed = true;
   const handler = async () => {
     document.removeEventListener("click", handler, true);
