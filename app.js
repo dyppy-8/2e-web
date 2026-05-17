@@ -121,9 +121,16 @@ function bindEvents() {
     await saveUserSettings();
     if (settings.notify_new_items) {
       await registerPushToken();
-      if (typeof Notification !== "undefined" && Notification.permission === "default") {
-        try { await Notification.requestPermission(); } catch {}
-        localStorage.setItem("web_notif_asked", "1");
+      if (typeof Notification !== "undefined") {
+        if (Notification.permission === "default") {
+          try { await Notification.requestPermission(); } catch {}
+          localStorage.setItem("web_notif_asked", "1");
+        }
+        if (Notification.permission === "granted") {
+          await subscribeWebPush();
+        } else if (Notification.permission === "denied") {
+          showToast("Tarayıcı bildirim izni kapalı. Site ayarlarından aç.");
+        }
       }
     } else {
       await disableDeviceTokens();
@@ -163,6 +170,8 @@ async function signInWithPassword(event) {
   const button = els.passwordForm.querySelector(".button-primary");
   setButtonBusy(button, "Giriliyor...");
 
+  await maybePromptNotificationPermission();
+
   const { error } = await supabase.auth.signInWithPassword({
     email: els.pwEmail.value.trim(),
     password: els.pwPass.value,
@@ -181,6 +190,8 @@ async function sendMagicLink(event) {
   event.preventDefault();
   const button = els.magicForm.querySelector(".button-primary");
   setButtonBusy(button, "Gönderiliyor...");
+
+  await maybePromptNotificationPermission();
 
   const { error } = await supabase.auth.signInWithOtp({
     email: els.magicEmail.value.trim(),
@@ -212,7 +223,11 @@ async function showApp(session) {
 
   if (settings.notify_new_items) {
     registerPushToken();
-    requestWebNotificationPermission();
+    if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+      subscribeWebPush();
+    } else {
+      armFirstGesturePrompt();
+    }
   }
 }
 
@@ -632,20 +647,35 @@ function showWebNotification(todo) {
   } catch {}
 }
 
-async function requestWebNotificationPermission() {
+async function maybePromptNotificationPermission() {
   if (typeof Notification === "undefined") return;
   if (window.Capacitor?.isNativePlatform?.()) return;
-
-  const alreadyAsked = localStorage.getItem("web_notif_asked") === "1";
-
-  if (Notification.permission === "default" && !alreadyAsked) {
-    try { await Notification.requestPermission(); } catch {}
-    localStorage.setItem("web_notif_asked", "1");
-  }
-
+  if (Notification.permission !== "default") return;
+  if (localStorage.getItem("web_notif_asked") === "1") return;
+  try {
+    await Notification.requestPermission();
+  } catch {}
+  localStorage.setItem("web_notif_asked", "1");
   if (Notification.permission === "granted") {
-    await subscribeWebPush();
+    subscribeWebPush();
   }
+}
+
+let firstGestureArmed = false;
+function armFirstGesturePrompt() {
+  if (firstGestureArmed) return;
+  if (typeof Notification === "undefined") return;
+  if (window.Capacitor?.isNativePlatform?.()) return;
+  if (Notification.permission !== "default") return;
+  if (localStorage.getItem("web_notif_asked") === "1") return;
+  firstGestureArmed = true;
+  const handler = async () => {
+    document.removeEventListener("click", handler, true);
+    document.removeEventListener("touchend", handler, true);
+    await maybePromptNotificationPermission();
+  };
+  document.addEventListener("click", handler, true);
+  document.addEventListener("touchend", handler, true);
 }
 
 function urlBase64ToUint8Array(base64String) {

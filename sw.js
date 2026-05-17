@@ -1,9 +1,9 @@
-const CACHE_NAME = "2e-pwa-v7";
+const CACHE_NAME = "2e-pwa-v8";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css?v=18",
-  "./app.js?v=18",
+  "./app.js?v=19",
   "./config.js?v=13",
   "./manifest.webmanifest",
   "./pwa-icon-180.png",
@@ -78,9 +78,24 @@ self.addEventListener("notificationclick", (event) => {
   })());
 });
 
+const NETWORK_FIRST = /\/(index\.html|app\.js|config\.js|sw\.js|styles\.css)(\?|$)/;
+
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (event.request.method !== "GET" || url.origin !== self.location.origin) {
+    return;
+  }
+
+  if (NETWORK_FIRST.test(url.pathname + url.search) || url.pathname.endsWith("/")) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request).then((cached) => cached || caches.match("./index.html")))
+    );
     return;
   }
 
