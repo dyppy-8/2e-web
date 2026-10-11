@@ -450,7 +450,7 @@ function updateTodoMeta() {
   const percent = count ? Math.round((done / count) * 100) : 0;
   els.todoProgressArc.setAttribute("stroke-dasharray", `${percent} 100`);
   els.todoProgressLabel.textContent = `%${percent}`;
-  els.todoProgress.setAttribute("aria-label", `%${percent} tamamlandı`);
+  els.todoProgress.setAttribute("aria-label", `%${percent} tamamlanan`);
 }
 
 function renderStats() {
@@ -490,7 +490,6 @@ function renderStats() {
   const lastKey = `${last.getFullYear()}-${String(last.getMonth() + 1).padStart(2, "0")}`;
   const thisMonth = months.get(thisKey)?.added || 0;
   const lastMonth = months.get(lastKey)?.added || 0;
-  const leader = [...byPerson].sort((a, b) => pct(b.done, b.added) - pct(a.done, a.added))[0];
   const monthName = (date) => new Intl.DateTimeFormat("tr-TR", { month: "long", year: "numeric" }).format(date);
   const split = (values) => values.map(({ name, value }) =>
     `<i style="width:${value}%;background:${PERSON_COLORS[name]}"></i>`).join("");
@@ -505,7 +504,7 @@ function renderStats() {
       <div class="stat-tile"><strong>${total}</strong><span>eklenen</span></div>
       <div class="stat-tile"><strong>${done}</strong><span>yapılan</span></div>
       <div class="stat-tile"><strong>${total - done}</strong><span>kalan</span></div>
-      <div class="stat-tile"><strong>%${pct(done, total)}</strong><span>tamamlandı</span></div>
+      <div class="stat-tile"><strong>%${pct(done, total)}</strong><span>tamamlanan</span></div>
     </div>
 
     <div class="feed-meta"><span>kişi bazında</span><span>genel</span></div>
@@ -514,7 +513,7 @@ function renderStats() {
         <div class="person-stat" style="--person-color:${PERSON_COLORS[p.name]}">
           <div class="person-stat-head"><strong>${p.name}</strong><span>%${pct(p.done, p.added)} yapıldı</span></div>
           <div class="stat-bar"><i style="width:${pct(p.done, p.added)}%"></i></div>
-          <p>${p.added} ekledi <b>·</b> ${p.done} yapıldı <b>·</b> ${p.added - p.done} kalan</p>
+          <p>${p.added} ekledi <b>·</b> ${p.done} yapıldı <b>·</b> ${p.added - p.done} kaldı</p>
           <p>pay: eklenen %${pct(p.added, total)} <b>·</b> yapılan %${pct(p.done, done)}</p>
         </div>`).join("")}
       <div class="split-label"><span>eklenen payı</span></div>
@@ -529,7 +528,6 @@ function renderStats() {
       <p><span>geçen ay eklenen</span><strong>${lastMonth}</strong></p>
       <p><span>aylık ortalama</span><strong>${(total / monthList.length).toFixed(1)}</strong></p>
       <p><span>en yoğun ay</span><strong>${monthName(busiest.date)} (${busiest.added})</strong></p>
-      <p><span>en çok tamamlayan</span><strong>${leader.name} (%${pct(leader.done, leader.added)})</strong></p>
     </div>
 
     <div class="feed-meta"><span>aylık</span><span>eklenen / yapılan</span></div>
