@@ -41,19 +41,10 @@ const els = {
   emptyTodos: document.querySelector("#empty-todos"),
   refreshTodos: document.querySelector("#refresh-todos"),
   syncState: document.querySelector("#sync-state"),
-  journalBody: document.querySelector("#journal-body"),
-  journalDate: document.querySelector("#journal-date"),
-  journalStart: document.querySelector("#journal-start"),
-  saveJournal: document.querySelector("#save-journal"),
-  journalList: document.querySelector("#journal-list"),
-  journalTemplate: document.querySelector("#journal-template"),
-  journalCount: document.querySelector("#journal-count"),
-  emptyJournal: document.querySelector("#empty-journal"),
-  journalModal: document.querySelector("#journal-modal"),
-  journalModalTitle: document.querySelector("#journal-modal-title"),
-  journalModalTime: document.querySelector("#journal-modal-time"),
-  journalModalBody: document.querySelector("#journal-modal-body"),
-  journalModalDelete: document.querySelector("#journal-modal-delete"),
+  todoProgress: document.querySelector("#todo-progress"),
+  todoProgressArc: document.querySelector("#todo-progress-arc"),
+  todoProgressLabel: document.querySelector("#todo-progress-label"),
+  statsBody: document.querySelector("#stats-body"),
   toast: document.querySelector("#toast"),
 };
 
@@ -65,8 +56,7 @@ let currentName = "";
 let settings = { notify_new_items: true };
 let todosChannel;
 let pushListenersBound = false;
-let activeJournal = freshJournalDraft();
-let selectedJournal = null;
+let allTodos = [];
 let toastTimer;
 
 bindEvents();
@@ -113,7 +103,6 @@ function bindEvents() {
   els.signOut.addEventListener("click", signOut);
   els.todoForm.addEventListener("submit", createTodo);
   els.refreshTodos.addEventListener("click", () => renderTodos({ announce: true }));
-  els.saveJournal.addEventListener("click", saveJournal);
   els.passwordChangeForm.addEventListener("submit", changePassword);
 
   els.notifyToggle.addEventListener("change", async () => {
@@ -146,18 +135,8 @@ function bindEvents() {
     button.addEventListener("click", closeSettings);
   });
 
-  document.querySelectorAll("[data-close-journal]").forEach((button) => {
-    button.addEventListener("click", closeJournalModal);
-  });
-
-  els.journalModalDelete.addEventListener("click", () => {
-    if (!selectedJournal) return;
-    deleteJournalEntry(selectedJournal.id);
-  });
-
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
-      closeJournalModal();
       closeSettings();
     }
   });
@@ -219,8 +198,7 @@ async function showApp(session) {
   updatePersonChrome();
 
   await loadUserSettings();
-  await Promise.all([renderTodos(), renderJournalList()]);
-  startNewJournal(false);
+  await renderTodos();
   subscribeRealtime();
 
   if (settings.notify_new_items) {
@@ -378,8 +356,10 @@ async function renderTodos({ announce = false } = {}) {
     return;
   }
 
+  allTodos = data;
   els.todoList.innerHTML = "";
   data.forEach((todo) => appendTodo(todo));
+  renderStats();
   updateTodoMeta();
   setSyncState("güncel");
   els.refreshTodos.classList.remove("spinning");
@@ -445,6 +425,8 @@ async function deleteTodo(id, item) {
     return;
   }
 
+  allTodos = allTodos.filter((todo) => todo.id !== id);
+  renderStats();
   setTimeout(() => {
     item.remove();
     updateTodoMeta();
@@ -464,152 +446,107 @@ function updateTodoMeta() {
   const count = els.todoList.querySelectorAll(".todo-item").length;
   els.todoCount.textContent = `${count} öğe`;
   els.emptyTodos.hidden = count > 0;
+  const done = els.todoList.querySelectorAll(".todo-item.done").length;
+  const percent = count ? Math.round((done / count) * 100) : 0;
+  els.todoProgressArc.setAttribute("stroke-dasharray", `${percent} 100`);
+  els.todoProgressLabel.textContent = `%${percent}`;
+  els.todoProgress.setAttribute("aria-label", `%${percent} tamamlandı`);
+}
+
+function renderStats() {
+  const people = Object.keys(PERSON_COLORS);
+  const nameOf = (todo) => todo.added_by || nameForUserId(todo.created_by);
+  const pct = (part, whole) => (whole ? Math.round((part / whole) * 100) : 0);
+  const total = allTodos.length;
+  const done = allTodos.filter((todo) => todo.is_done).length;
+
+  const byPerson = people.map((name) => {
+    const mine = allTodos.filter((todo) => nameOf(todo) === name);
+    const mineDone = mine.filter((todo) => todo.is_done).length;
+    return { name, added: mine.length, done: mineDone };
+  });
+
+  const months = new Map();
+  allTodos.forEach((todo) => {
+    const date = new Date(todo.created_at);
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    if (!months.has(key)) {
+      months.set(key, { key, date, added: 0, done: 0, people: Object.fromEntries(people.map((p) => [p, { added: 0, done: 0 }])) });
+    }
+    const month = months.get(key);
+    const person = month.people[nameOf(todo)];
+    month.added += 1;
+    if (todo.is_done) month.done += 1;
+    if (person) {
+      person.added += 1;
+      if (todo.is_done) person.done += 1;
+    }
+  });
+  const monthList = [...months.values()].sort((a, b) => b.key.localeCompare(a.key));
+  const busiest = monthList.reduce((best, m) => (!best || m.added > best.added ? m : best), null);
+  const now = new Date();
+  const thisKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const last = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const lastKey = `${last.getFullYear()}-${String(last.getMonth() + 1).padStart(2, "0")}`;
+  const thisMonth = months.get(thisKey)?.added || 0;
+  const lastMonth = months.get(lastKey)?.added || 0;
+  const leader = [...byPerson].sort((a, b) => pct(b.done, b.added) - pct(a.done, a.added))[0];
+  const monthName = (date) => new Intl.DateTimeFormat("tr-TR", { month: "long", year: "numeric" }).format(date);
+  const split = (values) => values.map(({ name, value }) =>
+    `<i style="width:${value}%;background:${PERSON_COLORS[name]}"></i>`).join("");
+
+  if (!total) {
+    els.statsBody.innerHTML = `<p class="empty-state">Henüz istatistik yok.</p>`;
+    return;
+  }
+
+  els.statsBody.innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-tile"><strong>${total}</strong><span>eklenen</span></div>
+      <div class="stat-tile"><strong>${done}</strong><span>yapılan</span></div>
+      <div class="stat-tile"><strong>${total - done}</strong><span>kalan</span></div>
+      <div class="stat-tile"><strong>%${pct(done, total)}</strong><span>tamamlandı</span></div>
+    </div>
+
+    <div class="feed-meta"><span>kişi bazında</span><span>genel</span></div>
+    <div class="stat-card">
+      ${byPerson.map((p) => `
+        <div class="person-stat" style="--person-color:${PERSON_COLORS[p.name]}">
+          <div class="person-stat-head"><strong>${p.name}</strong><span>%${pct(p.done, p.added)} yapıldı</span></div>
+          <div class="stat-bar"><i style="width:${pct(p.done, p.added)}%"></i></div>
+          <p>${p.added} ekledi <b>·</b> ${p.done} yapıldı <b>·</b> ${p.added - p.done} kalan</p>
+          <p>pay: eklenen %${pct(p.added, total)} <b>·</b> yapılan %${pct(p.done, done)}</p>
+        </div>`).join("")}
+      <div class="split-label"><span>eklenen payı</span></div>
+      <div class="stat-split">${split(byPerson.map((p) => ({ name: p.name, value: pct(p.added, total) })))}</div>
+      <div class="split-label"><span>yapılan payı</span></div>
+      <div class="stat-split">${split(byPerson.map((p) => ({ name: p.name, value: pct(p.done, done) })))}</div>
+    </div>
+
+    <div class="feed-meta"><span>analiz</span><span>${monthList.length} ay</span></div>
+    <div class="stat-card stat-facts">
+      <p><span>bu ay eklenen</span><strong>${thisMonth}</strong></p>
+      <p><span>geçen ay eklenen</span><strong>${lastMonth}</strong></p>
+      <p><span>aylık ortalama</span><strong>${(total / monthList.length).toFixed(1)}</strong></p>
+      <p><span>en yoğun ay</span><strong>${monthName(busiest.date)} (${busiest.added})</strong></p>
+      <p><span>en çok tamamlayan</span><strong>${leader.name} (%${pct(leader.done, leader.added)})</strong></p>
+    </div>
+
+    <div class="feed-meta"><span>aylık</span><span>eklenen / yapılan</span></div>
+    <div class="month-list">
+      ${monthList.map((m) => `
+        <div class="stat-card month-stat">
+          <div class="person-stat-head"><strong>${monthName(m.date)}</strong><span>%${pct(m.done, m.added)} yapıldı</span></div>
+          <div class="stat-bar"><i style="width:${pct(m.done, m.added)}%"></i></div>
+          <p>${m.added} eklendi <b>·</b> ${m.done} yapıldı</p>
+          ${people.map((name) => `<p class="month-person" style="--person-color:${PERSON_COLORS[name]}"><span>${name}</span>${m.people[name].added} ekledi · ${m.people[name].done} yapıldı</p>`).join("")}
+        </div>`).join("")}
+    </div>
+  `;
 }
 
 function setSyncState(label) {
   els.syncState.textContent = label;
-}
-
-function startNewJournal(focus = true) {
-  activeJournal = freshJournalDraft();
-  els.journalBody.value = "";
-  updateJournalHeader();
-  if (focus) els.journalBody.focus();
-}
-
-async function saveJournal() {
-  if (!currentUser) return;
-  const body = els.journalBody.value.trim();
-  if (!body) {
-    showToast("Günlüğe birkaç kelime yaz.");
-    return;
-  }
-
-  setButtonBusy(els.saveJournal, "Kaydediliyor...");
-
-  const now = new Date().toISOString();
-  const payload = {
-    id: activeJournal.id || crypto.randomUUID?.() || `journal-${Date.now()}`,
-    body,
-    entry_date: activeJournal.entry_date,
-    started_at: activeJournal.started_at,
-    created_by: currentUser.id,
-    created_at: activeJournal.created_at || now,
-    updated_at: now,
-  };
-
-  const entries = loadLocalJournals();
-  const existingIndex = entries.findIndex((entry) => entry.id === payload.id);
-
-  if (existingIndex >= 0) {
-    entries[existingIndex] = payload;
-  } else {
-    entries.unshift(payload);
-  }
-
-  saveLocalJournals(entries);
-  restoreButton(els.saveJournal);
-
-  renderJournalList();
-  startNewJournal(false);
-  showToast("Günlük bu telefona kaydedildi.");
-}
-
-async function renderJournalList() {
-  if (!currentUser) return;
-  const data = loadLocalJournals()
-    .sort((a, b) => new Date(b.started_at) - new Date(a.started_at))
-    .slice(0, 20);
-
-  els.journalList.innerHTML = "";
-  data.forEach((entry) => appendJournalEntry(entry));
-  els.journalCount.textContent = `${data.length} kayıt`;
-  els.emptyJournal.hidden = data.length > 0;
-}
-
-function appendJournalEntry(entry) {
-  const fragment = els.journalTemplate.content.cloneNode(true);
-  const item = fragment.querySelector(".journal-entry");
-  const openButton = fragment.querySelector(".journal-open");
-  const deleteButton = fragment.querySelector(".journal-delete");
-  const title = fragment.querySelector("strong");
-  const preview = fragment.querySelector("span");
-
-  item.dataset.id = entry.id;
-  title.textContent = formatJournalDate(entry.started_at);
-  preview.textContent = formatTime(entry.started_at);
-  openButton.addEventListener("click", () => openJournalModal(entry));
-  deleteButton.addEventListener("click", () => deleteJournalEntry(entry.id, item));
-
-  els.journalList.appendChild(fragment);
-}
-
-function openJournalModal(entry) {
-  selectedJournal = entry;
-  els.journalModalTitle.textContent = formatDetailedDate(entry.started_at);
-  els.journalModalTime.textContent = formatTime(entry.started_at);
-  els.journalModalBody.textContent = entry.body || "";
-  els.journalModal.classList.add("open");
-  els.journalModal.setAttribute("aria-hidden", "false");
-  els.journalModalDelete.focus({ preventScroll: true });
-}
-
-function closeJournalModal() {
-  if (!els.journalModal.classList.contains("open")) return;
-  els.journalModal.classList.remove("open");
-  els.journalModal.setAttribute("aria-hidden", "true");
-  selectedJournal = null;
-}
-
-function deleteJournalEntry(id, item = null) {
-  const entries = loadLocalJournals().filter((entry) => entry.id !== id);
-  saveLocalJournals(entries);
-  item?.classList.add("removing");
-
-  if (selectedJournal?.id === id) {
-    closeJournalModal();
-  }
-
-  if (activeJournal.id === id) {
-    startNewJournal(false);
-  }
-
-  setTimeout(() => {
-    renderJournalList();
-    showToast("Günlük silindi.");
-  }, item ? 190 : 120);
-}
-
-function updateJournalHeader() {
-  els.journalDate.textContent = formatFullDate(activeJournal.started_at);
-  els.journalStart.textContent = formatTime(activeJournal.started_at);
-}
-
-function freshJournalDraft() {
-  const now = new Date();
-  return {
-    id: null,
-    body: "",
-    entry_date: toDateKey(now),
-    started_at: now.toISOString(),
-  };
-}
-
-function journalStorageKey() {
-  return `eylul-emir-journal:${currentUser?.id || "guest"}`;
-}
-
-function loadLocalJournals() {
-  try {
-    const entries = JSON.parse(localStorage.getItem(journalStorageKey()) || "[]");
-    return Array.isArray(entries) ? entries : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveLocalJournals(entries) {
-  localStorage.setItem(journalStorageKey(), JSON.stringify(entries));
 }
 
 function subscribeRealtime() {
@@ -834,7 +771,7 @@ function switchTab(tabName) {
     tab.classList.toggle("active", tab.dataset.tab === tabName);
   });
   document.querySelector("#todo-panel").classList.toggle("active", tabName === "todo");
-  document.querySelector("#journal-panel").classList.toggle("active", tabName === "journal");
+  document.querySelector("#stats-panel").classList.toggle("active", tabName === "stats");
 }
 
 function finishBoot() {
@@ -881,45 +818,6 @@ function formatTodoDate(value) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(value));
-}
-
-function formatFullDate(value) {
-  return new Intl.DateTimeFormat("tr-TR", {
-    weekday: "long",
-    day: "2-digit",
-    month: "long",
-  }).format(new Date(value));
-}
-
-function formatDetailedDate(value) {
-  return new Intl.DateTimeFormat("tr-TR", {
-    weekday: "long",
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(value));
-}
-
-function formatJournalDate(value) {
-  return new Intl.DateTimeFormat("tr-TR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(value));
-}
-
-function formatTime(value) {
-  return new Intl.DateTimeFormat("tr-TR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(value));
-}
-
-function toDateKey(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
 }
 
 function platformName() {
