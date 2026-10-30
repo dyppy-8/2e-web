@@ -1,14 +1,15 @@
-const CACHE_NAME = "2e-pwa-v15";
+const CACHE_NAME = "2e-pwa-v16";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=21",
-  "./chrome.css?v=1",
-  "./list.css?v=1",
-  "./stats.css?v=1",
-  "./polish-list.js?v=1",
-  "./polish.js?v=2",
-  "./app.js?v=23",
+  "./styles.css?v=22",
+  "./chrome.css?v=2",
+  "./list.css?v=2",
+  "./stats.css?v=2",
+  "./polish-list.js?v=2",
+  "./polish-chrome.js?v=1",
+  "./polish.js?v=3",
+  "./app.js?v=24",
   "./config.js?v=13",
   "./manifest.webmanifest",
   "./favicon.ico",

@@ -1,6 +1,6 @@
 /* 2E - Liste (Todo List) Redesign */
 
-/* Section Head: Highlight swipe on Liste h2 & 54px dotted progress ring */
+/* Section Head: Highlight swipe on Liste h2 */
 .list-screen .section-head h2,
 #list-screen .section-head h2,
 .section-head h2 {
@@ -29,6 +29,100 @@
   z-index: -1;
   transform: rotate(-0.8deg);
   pointer-events: none;
+}
+
+/* Hide duplicate feed-meta row visually */
+.feed-meta {
+  display: none !important;
+}
+
+/* LIST HERO SECTION */
+.list-hero {
+  margin: 0.2rem 0 1rem;
+  padding: 0.85rem 1rem 0.95rem;
+  background: var(--paper-card);
+  border: 1.5px solid var(--ink-faint);
+  border-radius: 10px;
+  box-shadow: 4px 4px 0 rgba(42, 31, 61, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+}
+
+/* Small notebook washi tape accent on hero */
+.list-hero::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 28px;
+  width: 48px;
+  height: 16px;
+  background: color-mix(in srgb, var(--gold) 40%, rgba(255, 251, 240, 0.7));
+  border: 1px dashed rgba(42, 31, 61, 0.15);
+  transform: rotate(-2deg);
+  pointer-events: none;
+}
+
+.hero-text-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.hero-count {
+  font-family: 'Caveat', cursive;
+  font-size: 3.4rem;
+  font-weight: 700;
+  line-height: 0.88;
+  letter-spacing: -2px;
+  color: var(--ink);
+}
+
+.hero-label-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero-title {
+  font-family: 'Caveat', cursive;
+  font-size: 1.65rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--ink-soft);
+}
+
+.hero-sub {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  opacity: 0.85;
+}
+
+/* Torn-paper progress strip */
+.hero-progress-strip {
+  position: relative;
+  height: 14px;
+  background-color: var(--paper-deep);
+  background-image: repeating-linear-gradient(
+    45deg,
+    color-mix(in srgb, var(--ink-soft) 18%, transparent),
+    color-mix(in srgb, var(--ink-soft) 18%, transparent) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  border: 1.5px solid var(--ink-faint);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 1px 1px 2px rgba(42, 31, 61, 0.1);
+}
+
+.hero-progress-fill {
+  height: 100%;
+  background: var(--green);
+  border-right: 2px dashed color-mix(in srgb, var(--ink) 45%, var(--green));
+  transition: width 0.35s cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 
 /* Progress Ring: 54px with dotted track */
@@ -119,31 +213,25 @@ svg.progress-ring {
   box-shadow: 1px 1px 0 rgba(217, 111, 151, 0.2);
 }
 
-/* Meta Row: tighten vertical spacing to dividers */
-.feed-meta {
-  margin: 0.4rem 0 0.2rem !important;
-}
-
 /* List Dividers */
 .list-divider {
   list-style: none;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0.25rem 0.25rem 0;
-  margin: 0.2rem 0 0;
+  padding: 0.35rem 0.25rem 0;
+  margin: 0.4rem 0 0.1rem;
   user-select: none;
   pointer-events: none;
 }
 
 .list-divider.list-divider-undone {
-  margin-top: 0.05rem;
-  padding-top: 0.1rem;
+  margin-top: 0.1rem;
 }
 
 .list-divider.list-divider-done {
-  margin-top: 1.2rem;
-  margin-bottom: 0;
+  margin-top: 1.4rem;
+  margin-bottom: 0.2rem;
   opacity: 0.88;
 }
 
@@ -164,61 +252,228 @@ svg.progress-ring {
   background-position: left center;
 }
 
-/* Ensure room between divider and its first card so washi tape doesn't overlap divider text (~26px total gap with grid-gap) */
-.list-divider + .todo-item {
-  margin-top: calc(26px - 0.72rem) !important;
-}
-
-/* Todo List Items - Index Card Style */
+/* Todo List Items - Generous Index Card Style */
 .todo-item {
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-columns: 34px 1fr 44px;
-  column-gap: 0.45rem;
+  grid-template-columns: 36px 1fr 40px;
+  column-gap: 0.65rem;
   row-gap: 0.35rem;
-  align-items: start;
-  min-height: 76px;
-  padding: 0.85rem 0.6rem 0.75rem 0.55rem;
-  margin-top: 14px;
-  border: 1.5px solid var(--ink-faint);
-  border-radius: 6px;
+  align-items: center;
+  min-height: 80px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.65rem;
   background: var(--paper-card);
-  box-shadow: 4px 4px 0 rgba(42, 31, 61, 0.08);
-  transition: transform 260ms var(--ease-out), opacity 260ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  border: 1.5px solid var(--ink-faint);
+  border-radius: 8px;
+  box-shadow: 4px 4px 0 rgba(42, 31, 61, 0.1);
+  overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), margin 0.25s var(--ease-out);
+  --swipe-x: 0px;
 }
 
-/* Faint stacked second sheet peeking behind each card */
-.todo-item::before {
+/* Subtle organic card tilt */
+.todo-item:nth-of-type(6n+1) { transform: rotate(-0.4deg); }
+.todo-item:nth-of-type(6n+3) { transform: rotate(0.4deg); }
+.todo-item:nth-of-type(6n+5) { transform: rotate(-0.3deg); }
+
+/* Pressed State on Pointer Down */
+.todo-item.is-pressed {
+  transform: scale(0.985) rotate(var(--card-rot, 0deg)) !important;
+  box-shadow: 2px 2px 0 rgba(42, 31, 61, 0.18), 0 3px 8px rgba(42, 31, 61, 0.08) !important;
+}
+
+/* Direct swipe translation on children */
+.todo-item .todo-check,
+.todo-item .todo-main,
+.todo-item .delete-item {
+  position: relative;
+  z-index: 2;
+  transform: translateX(var(--swipe-x, 0px));
+  will-change: transform;
+}
+
+/* Action Underlays drawn with li::after */
+.todo-item::after {
   content: "";
   position: absolute;
-  inset: -1px;
-  border-radius: 6px;
-  background: var(--paper-card);
-  border: 1.5px solid rgba(42, 31, 61, 0.1);
-  box-shadow: 2px 2px 0 rgba(42, 31, 61, 0.05);
-  z-index: -1;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
   pointer-events: none;
-  transition: transform 220ms var(--ease-out);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 100ms ease;
 }
 
-.todo-item:nth-of-type(odd)::before {
-  transform: rotate(1.1deg) translate(2px, 1px);
+.todo-item.swiping::after {
+  opacity: 1;
 }
 
-.todo-item:nth-of-type(even)::before {
-  transform: rotate(-1.1deg) translate(-2px, 1.5px);
+/* Swipe Right: Green Ink Reveal (Done) */
+.todo-item[data-swipe-dir="right"]::after {
+  left: 0;
+  width: var(--swipe-x);
+  background-color: color-mix(in srgb, var(--green) 22%, var(--paper));
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='26' height='26' fill='none' stroke='%236faa74' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 24px center;
+  border-right: 1.5px dashed var(--green);
 }
 
-/* Tiny alternating tilt per card */
-.todo-item:nth-of-type(odd) {
-  transform: rotate(-0.3deg);
+/* Swipe Left: Danger Ink Reveal (Delete) */
+.todo-item[data-swipe-dir="left"]::after {
+  right: 0;
+  width: calc(-1 * var(--swipe-x));
+  background-color: color-mix(in srgb, var(--danger) 18%, var(--paper));
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='%23b65353' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 6 5 6 21 6'/%3E%3Cpath d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'/%3E%3Cline x1='10' y1='11' x2='10' y2='17'/%3E%3Cline x1='14' y1='11' x2='14' y2='17'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 24px) center;
+  border-left: 1.5px dashed var(--danger);
 }
 
-.todo-item:nth-of-type(even) {
-  transform: rotate(0.3deg);
+/* Card Content Details */
+.todo-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
+.todo-title {
+  font-family: var(--ui-font);
+  font-size: 1.02rem;
+  line-height: 1.35;
+  color: var(--ink);
+  word-break: break-word;
+}
+
+.todo-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.todo-person {
+  font-family: 'Caveat', cursive;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.todo-item[data-owner="Emir"] .todo-person,
+.todo-person.emir {
+  color: var(--pink-deep);
+}
+
+.todo-item[data-owner="Eylül"] .todo-person,
+.todo-person.eylul {
+  color: var(--blue-deep);
+}
+
+.todo-time {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  opacity: 0.75;
+}
+
+/* Checkbox Button */
+.todo-check {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1.8px solid var(--ink-soft);
+  background: var(--paper);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 1px 1px 0 rgba(42, 31, 61, 0.1);
+  transition: border-color 150ms var(--ease-out), background-color 150ms var(--ease-out);
+}
+
+.todo-item.done .todo-check {
+  border-color: var(--green);
+  background: color-mix(in srgb, var(--green) 18%, var(--paper));
+}
+
+.todo-item.done .todo-title {
+  text-decoration: line-through;
+  color: var(--ink-soft);
+  opacity: 0.65;
+}
+
+/* Delete Button */
+.delete-item {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--ink-faint);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 6px;
+  transition: color 150ms var(--ease-out), background-color 150ms var(--ease-out);
+}
+
+.delete-item:hover,
+.delete-item:active {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+/* YAPILANLAR GROUP COLLAPSED PILE LOOK */
+.todo-item.done {
+  opacity: 0.85;
+  margin-top: -20px;
+  box-shadow: 2px 2px 0 rgba(42, 31, 61, 0.08);
+}
+
+.list-divider.list-divider-done + .todo-item.done {
+  margin-top: 0.4rem !important;
+}
+
+.todo-item.done:nth-of-type(4n+1) {
+  --card-rot: -1.2deg;
+  transform: rotate(-1.2deg);
+}
+
+.todo-item.done:nth-of-type(4n+2) {
+  --card-rot: 0.9deg;
+  transform: rotate(0.9deg);
+}
+
+.todo-item.done:nth-of-type(4n+3) {
+  --card-rot: -0.6deg;
+  transform: rotate(-0.6deg);
+}
+
+.todo-item.done:nth-of-type(4n+4) {
+  --card-rot: 1.3deg;
+  transform: rotate(1.3deg);
+}
+
+/* Prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .todo-item,
+  .todo-item.done,
+  .todo-form button[type="submit"],
+  .section-head h2::after {
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Washi tape (restored) */
 /* Washi Tape Strip */
 .todo-tape {
   position: absolute;
@@ -255,164 +510,4 @@ svg.progress-ring {
   transform: translateX(-50%) rotate(2.2deg);
 }
 
-/* Hand-drawn Checkbox: 44px tap target, tightened column, vertically centered with first line block */
-.todo-check {
-  width: 44px;
-  min-width: 44px;
-  height: 44px;
-  min-height: 44px;
-  margin-left: -5px;
-  margin-right: -5px;
-  margin-top: -9px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  color: var(--green);
-  touch-action: manipulation;
-  align-self: start;
-}
-
-.todo-check svg {
-  width: 30px;
-  height: 30px;
-}
-
-.todo-check svg rect {
-  filter: url(#rough);
-  stroke-width: 1.8px;
-  stroke: var(--ink-soft);
-  fill: rgba(255, 255, 255, 0.65);
-}
-
-.todo-item.done .todo-check svg rect {
-  stroke: var(--green);
-  fill: color-mix(in srgb, var(--green) 18%, transparent);
-}
-
-/* Delete Item button: ink-soft at .55 opacity, hover/active to --danger, 44px tap target */
-.delete-item {
-  width: 44px;
-  min-width: 44px;
-  height: 44px;
-  min-height: 44px;
-  margin-top: -9px;
-  align-self: start;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  background: transparent;
-  color: var(--ink-soft);
-  opacity: 0.55;
-  cursor: pointer;
-  touch-action: manipulation;
-  transition: color 150ms ease, opacity 150ms ease, transform 150ms var(--ease-pop);
-}
-
-.delete-item:hover,
-.delete-item:active {
-  color: var(--danger);
-  opacity: 1;
-  transform: scale(1.1);
-}
-
-.delete-item svg {
-  width: 20px;
-  height: 20px;
-}
-
-/* Text and Person Line */
-.todo-main {
-  min-width: 0;
-  padding-top: 1px;
-}
-
-.todo-text {
-  margin: 0;
-  font-size: 1.05rem;
-  line-height: 1.35;
-  color: var(--ink);
-  word-break: break-word;
-}
-
-.todo-details {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-top: 5px;
-}
-
-.todo-avatar {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--person-color, var(--pink));
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.todo-person {
-  font-family: 'Caveat', cursive;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--person-color, var(--ink));
-  line-height: 1;
-}
-
-.todo-date {
-  font-size: 0.8rem;
-  color: var(--ink-soft);
-  opacity: 0.85;
-}
-
-/* Done cards look archived */
-.todo-item.done {
-  background: var(--paper-deep);
-  opacity: 0.76;
-  border-color: rgba(42, 31, 61, 0.12);
-}
-
-.todo-item.done::before {
-  background: var(--paper-deep);
-  opacity: 0.6;
-}
-
-.todo-item.done .todo-tape {
-  opacity: 0.22;
-  filter: grayscale(40%);
-}
-
-.todo-item.done .todo-text {
-  text-decoration: line-through;
-  text-decoration-color: var(--green);
-  text-decoration-thickness: 2.2px;
-  color: var(--ink-soft);
-  opacity: 0.78;
-}
-
-/* States: removing, pending, settled */
-.todo-item.pending {
-  opacity: 0.65;
-}
-
-.todo-item.removing {
-  opacity: 0;
-  transform: translateX(20px) scale(0.96) !important;
-}
-
-/* Prefers reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .todo-item,
-  .todo-item::before,
-  .todo-item:nth-of-type(odd),
-  .todo-item:nth-of-type(even),
-  .todo-form button[type="submit"],
-  .section-head h2::after {
-    transform: none !important;
-    transition: none !important;
-    animation: none !important;
-  }
-}
+.todo-item.done .todo-tape { opacity: 0.22; filter: grayscale(40%); }

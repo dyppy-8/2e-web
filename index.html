@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>2E</title>
-    <meta name="description" content="2E için ortak liste ve istatistikler.">
+    <meta name="description" content="Emir ve Eylül'ün ortak defteri.">
     <meta name="theme-color" content="#f4ecd9">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="2E">
@@ -17,10 +17,10 @@
     <link rel="apple-touch-icon" href="./pwa-icon-180.png">
     <link rel="preload" href="./real_app_logo.png" as="image">
     <link rel="preload" href="./in_app_icon.png" as="image">
-    <link rel="stylesheet" href="./styles.css?v=21">
-    <link rel="stylesheet" href="./chrome.css?v=1">
-    <link rel="stylesheet" href="./list.css?v=1">
-    <link rel="stylesheet" href="./stats.css?v=1">
+    <link rel="stylesheet" href="./styles.css?v=22">
+    <link rel="stylesheet" href="./chrome.css?v=2">
+    <link rel="stylesheet" href="./list.css?v=2">
+    <link rel="stylesheet" href="./stats.css?v=2">
   </head>
   <body>
     <svg class="svg-defs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
@@ -45,7 +45,7 @@
         <img class="auth-logo" src="./real_app_logo.png" alt="">
         <p class="kicker">ortak defter</p>
         <h1 id="auth-title">2E</h1>
-        <p class="auth-copy">listeye devam etmek için giriş yap.</p>
+        <p class="auth-copy">deftere devam etmek için giriş yap.</p>
 
         <form id="password-form" class="auth-form">
           <label class="field">
@@ -56,7 +56,7 @@
             <span>Şifre</span>
             <input id="pw-pass" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required>
           </label>
-          <button class="button button-primary" type="submit">Giriş</button>
+          <button class="button button-primary" type="submit">Giriş yap</button>
           <button class="button button-link" type="button" id="switch-to-magic">Şifremi unuttum</button>
         </form>
 
@@ -65,8 +65,8 @@
             <span>E-posta</span>
             <input id="magic-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="sen@ornek.com" required>
           </label>
-          <button class="button button-primary" type="submit">Bağlantı gönder</button>
-          <button class="button button-link" type="button" id="switch-to-password">Şifre ile giriş</button>
+          <button class="button button-primary" type="submit">Giriş bağlantısı gönder</button>
+          <button class="button button-link" type="button" id="switch-to-password">Şifreyle giriş yap</button>
         </form>
       </section>
     </main>
@@ -75,11 +75,11 @@
       <header class="app-header">
         <img class="header-logo" src="./in_app_icon.png" alt="2E">
         <div class="header-title">
-          <span id="header-kicker">ortak liste</span>
+          <span id="header-kicker">ortak defter</span>
           <strong id="header-name">2E</strong>
           <span id="header-date" class="header-date"></span>
         </div>
-        <button id="settings-open" class="icon-button" type="button" aria-label="Ayarlar">
+        <button id="settings-open" class="icon-button" type="button" aria-label="ayarlar">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M9.67 4.14a2.34 2.34 0 0 1 4.66 0 2.34 2.34 0 0 0 3.32 1.91 2.34 2.34 0 0 1 2.33 4.04 2.34 2.34 0 0 0 0 3.82 2.34 2.34 0 0 1-2.33 4.04 2.34 2.34 0 0 0-3.32 1.91 2.34 2.34 0 0 1-4.66 0 2.34 2.34 0 0 0-3.32-1.91 2.34 2.34 0 0 1-2.33-4.04 2.34 2.34 0 0 0 0-3.82 2.34 2.34 0 0 1 2.33-4.04 2.34 2.34 0 0 0 3.32-1.91Z"/>
             <circle cx="12" cy="12" r="3"/>
@@ -110,13 +110,13 @@
           </div>
 
           <form id="todo-form" class="composer">
-            <label class="sr-only" for="todo-input">Görev ekle</label>
-            <input id="todo-input" name="todo" type="text" maxlength="240" autocomplete="off" placeholder="Bir aktivite ekle..." required>
+            <label class="sr-only" for="todo-input">Ekle</label>
+            <input id="todo-input" name="todo" type="text" maxlength="240" autocomplete="off" placeholder="Bir şey ekle..." required>
             <button class="button button-primary" type="submit">Ekle</button>
           </form>
 
           <div class="feed-meta">
-            <span id="todo-count">0 öğe</span>
+            <span id="todo-count">0 şey</span>
             <span id="sync-state">hazır</span>
           </div>
 
@@ -182,7 +182,7 @@
           <input id="notify-toggle" type="checkbox">
           <span>
             <strong>Bildirim</strong>
-            <small>listeye eklenen aktivitelerden anında haberdar olmak için bildirimleri açabilirsin.</small>
+            <small>listeye yeni bir şey eklenince haberin olsun istersen bildirimleri açabilirsin.</small>
           </span>
         </label>
 
@@ -210,7 +210,6 @@
         <div class="todo-main">
           <p class="todo-text"></p>
           <div class="todo-details">
-            <img class="todo-avatar" src="./in_app_e_pink.png" alt="">
             <span class="todo-person"></span>
             <span class="todo-date"></span>
           </div>
@@ -226,8 +225,9 @@
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script src="./config.js?v=13"></script>
-    <script type="module" src="./app.js?v=23"></script>
-    <script type="module" src="./polish.js?v=2"></script>
-    <script type="module" src="./polish-list.js?v=1"></script>
+    <script type="module" src="./app.js?v=24"></script>
+    <script type="module" src="./polish.js?v=3"></script>
+    <script type="module" src="./polish-list.js?v=2"></script>
+    <script type="module" src="./polish-chrome.js?v=1"></script>
   </body>
 </html>
