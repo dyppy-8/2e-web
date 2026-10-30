@@ -1124,7 +1124,7 @@
         const dayMonth = new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long' }).format(now);
         const weekdayStr = new Intl.DateTimeFormat('tr-TR', { weekday: 'long' }).format(now);
         const weekday = weekdayStr ? weekdayStr.charAt(0).toLocaleUpperCase('tr-TR') + weekdayStr.slice(1) : '';
-        headerDate.textContent = `${dayMonth}, ${weekday}`;
+        headerDate.textContent = `${dayMonth} ${weekdayStr}`;
       }
     }
     updateHeaderDate();

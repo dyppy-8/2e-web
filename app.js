@@ -515,12 +515,27 @@ function renderStats() {
   const emirThis = thisMonthObj?.people?.["Emir"]?.added || 0;
   const eylulThis = thisMonthObj?.people?.["Eylül"]?.added || 0;
   let aheadText = "Bu ay başa baş gidiyorsunuz!";
-  if (emirThis > eylulThis) {
-    aheadText = `Bu ay Emir ${emirThis} ekleme ile önde!`;
+  if (emirThis === 0 && eylulThis === 0) {
+    aheadText = "Bu ay henüz bir şey eklemediniz.";
+  } else if (emirThis > eylulThis) {
+    aheadText = "Bu ay Emir önde!";
   } else if (eylulThis > emirThis) {
-    aheadText = `Bu ay Eylül ${eylulThis} ekleme ile önde!`;
-  } else if (emirThis === 0 && eylulThis === 0) {
-    aheadText = "Yeni ay, yeni hedefler!";
+    aheadText = "Bu ay Eylül önde!";
+  }
+
+  let summaryMain = "";
+  if (total === 0) {
+    summaryMain = "Birlikte henüz bir şey eklemediniz.";
+  } else if (done === 0) {
+    summaryMain = total === 1
+      ? "Birlikte 1 şey eklediniz, henüz yapmadınız."
+      : `Birlikte ${total} şey eklediniz, henüz hiçbirini yapmadınız.`;
+  } else if (done === total) {
+    summaryMain = total === 1
+      ? "Birlikte 1 şey eklediniz, onu da yaptınız!"
+      : `Birlikte ${total} şey eklediniz, hepsini yaptınız!`;
+  } else {
+    summaryMain = `Birlikte ${total} şey eklediniz, ${done} tanesini yaptınız.`;
   }
 
   const last6Months = monthList.slice(0, 6).reverse();
@@ -554,11 +569,11 @@ function renderStats() {
 
           <!-- Center Text -->
           <text x="66" y="61" text-anchor="middle" dominant-baseline="central" class="hero-donut-pct">%${donePct}</text>
-          <text x="66" y="79" text-anchor="middle" dominant-baseline="central" class="hero-donut-sub">tamamlandı</text>
+          <text x="66" y="79" text-anchor="middle" dominant-baseline="central" class="hero-donut-sub">yapıldı</text>
         </svg>
       </div>
       <div class="stats-hero-text">
-        <p class="hero-summary-main">Birlikte ${total} şey eklediniz, ${done} tanesini yaptınız.</p>
+        <p class="hero-summary-main">${summaryMain}</p>
         <p class="hero-summary-ahead">${aheadText}</p>
         <div class="hero-legend">
           <span class="legend-item"><i style="background:var(--green)"></i>yapılan</span>
@@ -577,7 +592,7 @@ function renderStats() {
     </div>
 
     <!-- 3. Person Cards Side by Side -->
-    <div class="feed-meta"><span>kişi bazında</span><span>genel</span></div>
+    <div class="feed-meta"><span>kim ne yaptı</span><span>genel</span></div>
     <div class="person-cards">
       ${byPerson.map((p) => {
         const isEmir = p.name === "Emir";
@@ -605,19 +620,19 @@ function renderStats() {
     </div>
 
     <div class="stat-card split-shares-card">
-      <div class="split-label"><span>eklenen payı</span></div>
+      <div class="split-label"><span>eklenenlerin payı</span></div>
       <div class="stat-split">${split(byPerson.map((p) => ({ name: p.name, value: pct(p.added, total) })))}</div>
-      <div class="split-label"><span>yapılan payı</span></div>
+      <div class="split-label"><span>yapılanların payı</span></div>
       <div class="stat-split">${split(byPerson.map((p) => ({ name: p.name, value: pct(p.done, done) })))}</div>
     </div>
 
     <!-- 4. Monthly Column Chart -->
-    <div class="feed-meta"><span>aylık grafik</span><span>son ${last6Months.length} ay</span></div>
+    <div class="feed-meta"><span>aylık dağılım</span><span>son ${last6Months.length} ay</span></div>
     <div class="stat-card month-chart-card">
       <div class="month-chart-legend">
-        <span><i class="legend-swatch swatch-emir-solid"></i>Emir yapılan</span>
+        <span><i class="legend-swatch swatch-emir-solid"></i>Emir (yapılan)</span>
         <span><i class="legend-swatch swatch-emir-hatched"></i>kalan</span>
-        <span><i class="legend-swatch swatch-eylul-solid"></i>Eylül yapılan</span>
+        <span><i class="legend-swatch swatch-eylul-solid"></i>Eylül (yapılan)</span>
         <span><i class="legend-swatch swatch-eylul-hatched"></i>kalan</span>
       </div>
       <div class="month-chart">
@@ -653,7 +668,7 @@ function renderStats() {
     </div>
 
     <!-- 5. Analiz Facts Card -->
-    <div class="feed-meta"><span>analiz</span><span>${monthList.length} ay</span></div>
+    <div class="feed-meta"><span>özet</span><span>${monthList.length} ay</span></div>
     <div class="stat-card stat-facts ruled-paper-note">
       <div class="note-pin"></div>
       <p><span>bu ay eklenen</span><strong>${thisMonth}</strong></p>
@@ -663,7 +678,7 @@ function renderStats() {
     </div>
 
     <!-- 6. Compact Monthly Breakdown -->
-    <div class="feed-meta"><span>aylık detay</span><span>eklenen / yapılan</span></div>
+    <div class="feed-meta"><span>aylık döküm</span><span>eklenen / yapılan</span></div>
     <div class="month-list">
       ${monthList.map((m) => `
         <div class="stat-card month-stat compact-month-stat">
@@ -675,7 +690,7 @@ function renderStats() {
           <div class="month-people-row">
             ${people.map((name) => `
               <span class="month-person-badge" style="--person-color:${PERSON_COLORS[name]}">
-                <b>${name}:</b> ${m.people[name].added} eklendi · ${m.people[name].done} yapıldı
+                <b>${name}:</b> ${m.people[name].added} ekledi · ${m.people[name].done} yaptı
               </span>
             `).join("")}
           </div>

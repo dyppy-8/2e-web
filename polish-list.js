@@ -52,7 +52,7 @@
           const undoneDiv = document.createElement('li');
           undoneDiv.className = 'list-divider list-divider-undone';
           undoneDiv.setAttribute('aria-hidden', 'true');
-          undoneDiv.innerHTML = '<span class="divider-text">Yapılacaklar · ' + undoneItems.length + '</span><span class="divider-line"></span>';
+          undoneDiv.innerHTML = '<span class="divider-text">yapılacaklar · ' + undoneItems.length + '</span><span class="divider-line"></span>';
           list.insertBefore(undoneDiv, undoneItems[0]);
         }
 
@@ -61,7 +61,7 @@
           const doneDiv = document.createElement('li');
           doneDiv.className = 'list-divider list-divider-done';
           doneDiv.setAttribute('aria-hidden', 'true');
-          doneDiv.innerHTML = '<span class="divider-text">Yapıldı · ' + doneItems.length + '</span><span class="divider-line"></span>';
+          doneDiv.innerHTML = '<span class="divider-text">yapılanlar · ' + doneItems.length + '</span><span class="divider-line"></span>';
           list.insertBefore(doneDiv, doneItems[0]);
         }
       }
