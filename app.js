@@ -411,7 +411,7 @@ async function toggleTodo(todo, item) {
     return;
   }
 
-  setTimeout(renderTodos, 180);
+  setTimeout(renderTodos, 560);
 }
 
 async function deleteTodo(id, item) {

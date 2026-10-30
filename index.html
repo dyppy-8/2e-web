@@ -17,11 +17,21 @@
     <link rel="apple-touch-icon" href="./pwa-icon-180.png">
     <link rel="preload" href="./real_app_logo.png" as="image">
     <link rel="preload" href="./in_app_icon.png" as="image">
-    <link rel="stylesheet" href="./styles.css?v=19">
+    <link rel="stylesheet" href="./styles.css?v=21">
+    <link rel="stylesheet" href="./chrome.css?v=1">
+    <link rel="stylesheet" href="./list.css?v=1">
+    <link rel="stylesheet" href="./stats.css?v=1">
   </head>
   <body>
+    <svg class="svg-defs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+      <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </svg>
     <div class="paper-bg" aria-hidden="true"></div>
     <div class="paper-grain" aria-hidden="true"></div>
+    <canvas class="paper-doodles" aria-hidden="true"></canvas>
     <div class="paper-lines" aria-hidden="true"></div>
 
     <section id="boot-screen" class="boot-screen" aria-live="polite">
@@ -67,6 +77,7 @@
         <div class="header-title">
           <span id="header-kicker">ortak liste</span>
           <strong id="header-name">2E</strong>
+          <span id="header-date" class="header-date"></span>
         </div>
         <button id="settings-open" class="icon-button" type="button" aria-label="Ayarlar">
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -127,6 +138,7 @@
       </section>
 
       <nav class="bottom-tabs" aria-label="Alt menü">
+        <span class="tab-indicator" aria-hidden="true"></span>
         <button class="tab active" type="button" data-tab="todo">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M9 6h10M9 12h10M9 18h10M4 6l1.45 1.45L8 4.8M4 12l1.45 1.45L8 10.8M4 18l1.45 1.45L8 16.8"/>
@@ -188,6 +200,7 @@
 
     <template id="todo-template">
       <li class="todo-item">
+        <span class="todo-tape" aria-hidden="true"></span>
         <button class="todo-check" type="button" aria-label="Tamamla">
           <svg viewBox="0 0 36 36" aria-hidden="true">
             <rect x="7" y="7" width="22" height="22" rx="5"></rect>
@@ -197,6 +210,7 @@
         <div class="todo-main">
           <p class="todo-text"></p>
           <div class="todo-details">
+            <img class="todo-avatar" src="./in_app_e_pink.png" alt="">
             <span class="todo-person"></span>
             <span class="todo-date"></span>
           </div>
@@ -212,6 +226,8 @@
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script src="./config.js?v=13"></script>
-    <script type="module" src="./app.js?v=22"></script>
+    <script type="module" src="./app.js?v=23"></script>
+    <script type="module" src="./polish.js?v=2"></script>
+    <script type="module" src="./polish-list.js?v=1"></script>
   </body>
 </html>
