@@ -1,0 +1,580 @@
+/* ==========================================================================
+   stats.css - Hand-crafted Paper Notebook Stats Redesign
+   Palette: ONLY --ink, --ink-soft, --ink-faint, --paper, --paper-deep,
+            --paper-card, --pink, --pink-deep, --blue, --blue-deep, --green,
+            --gold, --danger (+ alpha variants).
+   Fonts: Caveat (handwriting), Nunito (body).
+   ========================================================================== */
+
+/* 1. Hero Card */
+.stats-hero {
+  position: relative;
+  background: var(--paper-card);
+  border: 1px solid var(--paper-deep);
+  border-radius: 12px;
+  padding: 18px 14px 16px;
+  margin-bottom: 14px;
+  box-shadow: 4px 4px 0 rgba(42, 31, 61, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  overflow: hidden;
+}
+
+.stats-hero-tape {
+  position: absolute;
+  top: -6px;
+  left: 20px;
+  width: 58px;
+  height: 18px;
+  background: rgba(209, 163, 74, 0.4);
+  transform: rotate(-3deg);
+  border-left: 2px dashed rgba(42, 31, 61, 0.15);
+  border-right: 2px dashed rgba(42, 31, 61, 0.15);
+  box-shadow: 0 1px 2px rgba(42, 31, 61, 0.08);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.stats-hero-donut {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-svg {
+  display: block;
+}
+
+.hero-donut-pct {
+  font-family: "Caveat", cursive;
+  font-size: 24px;
+  font-weight: 700;
+  fill: var(--ink);
+  text-anchor: middle;
+}
+
+.hero-donut-sub {
+  font-family: "Caveat", cursive;
+  font-size: 0.95rem;
+  font-weight: 600;
+  fill: var(--ink-soft);
+  text-transform: lowercase;
+  letter-spacing: 0;
+  text-anchor: middle;
+}
+
+.stats-hero-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hero-summary-main {
+  font-family: "Caveat", cursive;
+  font-size: 20px;
+  line-height: 1.25;
+  color: var(--ink);
+  margin: 0;
+}
+
+.hero-summary-ahead {
+  font-family: "Caveat", cursive;
+  font-size: 17px;
+  line-height: 1.2;
+  color: var(--pink-deep);
+  margin: 0;
+}
+
+.hero-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.legend-item {
+  font-size: 11px;
+  color: var(--ink-soft);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legend-item i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* 2. Stat Grid (Index Cards) */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.stat-tile {
+  background: var(--paper-card);
+  border: 1px solid var(--paper-deep);
+  border-radius: 8px;
+  padding: 10px 4px 8px;
+  text-align: center;
+  box-shadow: 3px 3px 0 rgba(42, 31, 61, 0.08);
+  position: relative;
+  transition: transform 0.15s var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-tile:nth-child(1) { transform: rotate(-0.7deg); }
+.stat-tile:nth-child(2) { transform: rotate(0.6deg); }
+.stat-tile:nth-child(3) { transform: rotate(-0.5deg); }
+.stat-tile:nth-child(4) { transform: rotate(0.8deg); }
+
+.stat-tile strong {
+  position: relative;
+  display: inline-block;
+  justify-self: center;
+  margin-left: 0;
+  text-align: center;
+  font-family: "Caveat", cursive;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--ink);
+  font-weight: 700;
+  z-index: 1;
+}
+
+.stat-tile strong::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 1px;
+  transform: translateX(-50%);
+  width: 110%;
+  height: 45%;
+  background: rgba(209, 163, 74, 0.32);
+  border-radius: 3px;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.stat-tile span {
+  display: block;
+  font-size: 10.5px;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+  text-align: center;
+  width: 100%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 3. Person Cards Side by Side */
+.person-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.person-card {
+  background: var(--paper-card);
+  border: 1px solid var(--paper-deep);
+  border-radius: 10px;
+  padding: 12px 10px 10px;
+  box-shadow: 3px 3px 0 rgba(42, 31, 61, 0.08);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.person-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.person-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2.5px solid var(--person-color);
+  object-fit: cover;
+  box-shadow: 0 1px 3px rgba(42, 31, 61, 0.12);
+  flex-shrink: 0;
+}
+
+.person-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.person-name {
+  font-family: "Caveat", cursive;
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--person-color);
+}
+
+.person-rate {
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+.person-big-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin: 2px 0 6px;
+}
+
+.person-count {
+  font-family: "Caveat", cursive;
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.person-count-unit {
+  font-size: 11px;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.person-stats-foot {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  margin: 6px 0 0;
+  line-height: 1.3;
+}
+
+.split-shares-card {
+  margin-bottom: 14px;
+  padding: 10px 14px 12px;
+}
+
+/* 4. Monthly Column Chart */
+.month-chart-card {
+  margin-bottom: 14px;
+  padding: 14px;
+}
+
+.month-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.month-chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+  border: 1px solid rgba(42, 31, 61, 0.15);
+}
+
+.swatch-emir-solid { background-color: var(--pink); }
+.swatch-emir-hatched {
+  background: repeating-linear-gradient(45deg, var(--pink), var(--pink) 2px, rgba(217, 111, 151, 0.25) 2px, rgba(217, 111, 151, 0.25) 5px);
+}
+.swatch-eylul-solid { background-color: var(--blue); }
+.swatch-eylul-hatched {
+  background: repeating-linear-gradient(45deg, var(--blue), var(--blue) 2px, rgba(90, 167, 216, 0.25) 2px, rgba(90, 167, 216, 0.25) 5px);
+}
+
+.month-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 130px;
+  padding: 0 4px;
+}
+
+.chart-month-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 110px;
+}
+
+.chart-col {
+  width: 13px;
+  border-radius: 3px 3px 0 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform-origin: bottom;
+  animation: chartGrow 0.8s var(--ease-out) backwards;
+  border: 1px solid rgba(42, 31, 61, 0.15);
+  border-bottom: none;
+}
+
+.chart-col .col-segment {
+  width: 100%;
+}
+
+.col-emir .col-solid {
+  background-color: var(--pink);
+}
+
+.col-emir .col-hatched {
+  background: repeating-linear-gradient(45deg, var(--pink), var(--pink) 2px, rgba(217, 111, 151, 0.25) 2px, rgba(217, 111, 151, 0.25) 5px);
+}
+
+.col-eylul .col-solid {
+  background-color: var(--blue);
+}
+
+.col-eylul .col-hatched {
+  background: repeating-linear-gradient(45deg, var(--blue), var(--blue) 2px, rgba(90, 167, 216, 0.25) 2px, rgba(90, 167, 216, 0.25) 5px);
+}
+
+@keyframes chartGrow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart-col {
+    animation: none !important;
+  }
+}
+
+.chart-month-label {
+  font-family: "Caveat", cursive;
+  font-size: 14px;
+  color: var(--ink);
+  margin-top: 6px;
+  text-align: center;
+}
+
+.chart-baseline {
+  height: 2px;
+  background: var(--ink-soft);
+  width: 100%;
+  filter: url(#rough);
+  border-radius: 1px;
+}
+
+/* 5. Analiz Ruled-Paper Note */
+.ruled-paper-note {
+  position: relative;
+  background-color: var(--paper-card);
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 25px,
+    rgba(42, 31, 61, 0.08) 26px
+  );
+  border-left: 3px solid rgba(217, 111, 151, 0.4);
+  padding: 14px 16px 12px;
+  margin-bottom: 14px;
+  box-shadow: 4px 4px 0 rgba(42, 31, 61, 0.1);
+}
+
+.note-pin {
+  position: absolute;
+  top: -5px;
+  right: 18px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 1px 3px rgba(42, 31, 61, 0.3);
+}
+
+.ruled-paper-note p {
+  line-height: 26px;
+  margin: 0;
+}
+
+/* 6. Compact Monthly Breakdown */
+.compact-month-stat {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.compact-month-meta {
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin: 4px 0;
+}
+
+.month-people-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.month-person-badge {
+  font-size: 11.5px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--paper-deep);
+  border-left: 3px solid var(--person-color);
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--ink);
+}
+
+@media (max-width: 360px) {
+  .stats-hero {
+    flex-direction: column;
+    text-align: center;
+  }
+  .hero-legend {
+    justify-content: center;
+  }
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+.stat-tile {
+  background: var(--paper-card);
+  border: 1px solid var(--paper-deep);
+  border-radius: 8px;
+  padding: 10px 4px 8px;
+  text-align: center;
+  box-shadow: 3px 3px 0 rgba(42, 31, 61, 0.08);
+  position: relative;
+  transition: transform 0.15s var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-tile:nth-child(1) { transform: rotate(-0.7deg); }
+.stat-tile:nth-child(2) { transform: rotate(0.6deg); }
+.stat-tile:nth-child(3) { transform: rotate(-0.5deg); }
+.stat-tile:nth-child(4) { transform: rotate(0.8deg); }
+
+.stat-tile strong {
+  position: relative;
+  display: inline-block;
+  justify-self: center;
+  margin-left: 0;
+  text-align: center;
+  font-family: "Caveat", cursive;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--ink);
+  font-weight: 700;
+  z-index: 1;
+}
+
+.stat-tile strong::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 1px;
+  transform: translateX(-50%);
+  width: 110%;
+  height: 45%;
+  background: rgba(209, 163, 74, 0.32);
+  border-radius: 3px;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.stat-tile span {
+  display: block;
+  font-size: 10.5px;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+  text-align: center;
+  width: 100%;
+}
+
+}
+
+
+/* Monthly Chart Fixes */
+.chart-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: center;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  height: 100%;
+  width: 100%;
+}
+
+.chart-bar[data-count="0"],
+.chart-bar.is-zero,
+.chart-bar[style*="height: 0%"],
+.chart-bar[style*="height:0%"],
+.chart-bar[style*="height: 0px"],
+.chart-bar[style*="height:0px"] {
+  min-height: 0 !important;
+  height: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  display: none !important;
+}
+
+.chart-label,
+.chart-month-name,
+.month-col-label {
+  text-align: center !important;
+  width: 100% !important;
+  display: block !important;
+  margin: 6px auto 0 !important;
+}

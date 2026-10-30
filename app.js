@@ -491,6 +491,7 @@ function renderStats() {
   const thisMonth = months.get(thisKey)?.added || 0;
   const lastMonth = months.get(lastKey)?.added || 0;
   const monthName = (date) => new Intl.DateTimeFormat("tr-TR", { month: "long", year: "numeric" }).format(date);
+  const shortMonthName = (date) => new Intl.DateTimeFormat("tr-TR", { month: "short" }).format(date);
   const split = (values) => values.map(({ name, value }) =>
     `<i style="width:${value}%;background:${PERSON_COLORS[name]}"></i>`).join("");
 
@@ -499,7 +500,75 @@ function renderStats() {
     return;
   }
 
+  // Hero Donut geometry
+  const outerCircumference = 326.726; // 2 * PI * 52
+  const donePct = pct(done, total);
+  const outerOffset = outerCircumference * (1 - done / total);
+
+  const innerCircumference = 251.327; // 2 * PI * 40
+  const emirObj = byPerson.find((p) => p.name === "Emir") || { added: 0, done: 0 };
+  const emirShare = total ? (emirObj.added / total) : 0.5;
+  const emirArc = emirShare * innerCircumference;
+  const eylulArc = innerCircumference - emirArc;
+
+  const thisMonthObj = months.get(thisKey);
+  const emirThis = thisMonthObj?.people?.["Emir"]?.added || 0;
+  const eylulThis = thisMonthObj?.people?.["Eylül"]?.added || 0;
+  let aheadText = "Bu ay başa baş gidiyorsunuz!";
+  if (emirThis > eylulThis) {
+    aheadText = `Bu ay Emir ${emirThis} ekleme ile önde!`;
+  } else if (eylulThis > emirThis) {
+    aheadText = `Bu ay Eylül ${eylulThis} ekleme ile önde!`;
+  } else if (emirThis === 0 && eylulThis === 0) {
+    aheadText = "Yeni ay, yeni hedefler!";
+  }
+
+  const last6Months = monthList.slice(0, 6).reverse();
+  const maxAdded = Math.max(
+    ...last6Months.flatMap((m) => [m.people["Emir"]?.added || 0, m.people["Eylül"]?.added || 0]),
+    1
+  );
+
   els.statsBody.innerHTML = `
+    <!-- 1. Hero Card -->
+    <div class="stats-hero">
+      <div class="stats-hero-tape"></div>
+      <div class="stats-hero-donut">
+        <svg viewBox="0 0 132 132" width="132" height="132" class="hero-svg">
+          <!-- Outer track -->
+          <circle cx="66" cy="66" r="52" fill="none" stroke="var(--ink-faint)" stroke-width="8" stroke-dasharray="2 5" stroke-linecap="round"/>
+          <!-- Outer completion arc -->
+          <circle cx="66" cy="66" r="52" fill="none" stroke="var(--green)" stroke-width="8" stroke-linecap="round"
+            stroke-dasharray="${outerCircumference}" stroke-dashoffset="${outerOffset}"
+            transform="rotate(-90 66 66)" filter="url(#rough)"/>
+
+          <!-- Inner track -->
+          <circle cx="66" cy="66" r="40" fill="none" stroke="var(--paper-deep)" stroke-width="5"/>
+          <!-- Inner arcs: Emir (pink) & Eylül (blue) -->
+          <circle cx="66" cy="66" r="40" fill="none" stroke="var(--pink)" stroke-width="5"
+            stroke-dasharray="${emirArc} ${innerCircumference}" stroke-dashoffset="0"
+            transform="rotate(-90 66 66)" filter="url(#rough)"/>
+          <circle cx="66" cy="66" r="40" fill="none" stroke="var(--blue)" stroke-width="5"
+            stroke-dasharray="${eylulArc} ${innerCircumference}" stroke-dashoffset="${-emirArc}"
+            transform="rotate(-90 66 66)" filter="url(#rough)"/>
+
+          <!-- Center Text -->
+          <text x="66" y="61" text-anchor="middle" dominant-baseline="central" class="hero-donut-pct">%${donePct}</text>
+          <text x="66" y="79" text-anchor="middle" dominant-baseline="central" class="hero-donut-sub">tamamlandı</text>
+        </svg>
+      </div>
+      <div class="stats-hero-text">
+        <p class="hero-summary-main">Birlikte ${total} şey eklediniz, ${done} tanesini yaptınız.</p>
+        <p class="hero-summary-ahead">${aheadText}</p>
+        <div class="hero-legend">
+          <span class="legend-item"><i style="background:var(--green)"></i>yapılan</span>
+          <span class="legend-item"><i style="background:var(--pink)"></i>Emir</span>
+          <span class="legend-item"><i style="background:var(--blue)"></i>Eylül</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. The 4 Tiles Grid -->
     <div class="stat-grid">
       <div class="stat-tile"><strong>${total}</strong><span>eklenen</span></div>
       <div class="stat-tile"><strong>${done}</strong><span>yapılan</span></div>
@@ -507,37 +576,109 @@ function renderStats() {
       <div class="stat-tile"><strong>%${pct(done, total)}</strong><span>tamamlanan</span></div>
     </div>
 
+    <!-- 3. Person Cards Side by Side -->
     <div class="feed-meta"><span>kişi bazında</span><span>genel</span></div>
-    <div class="stat-card">
-      ${byPerson.map((p) => `
-        <div class="person-stat" style="--person-color:${PERSON_COLORS[p.name]}">
-          <div class="person-stat-head"><strong>${p.name}</strong><span>%${pct(p.done, p.added)} yapıldı</span></div>
-          <div class="stat-bar"><i style="width:${pct(p.done, p.added)}%"></i></div>
-          <p>${p.added} ekledi <b>·</b> ${p.done} yapıldı <b>·</b> ${p.added - p.done} kaldı</p>
-          <p>pay: eklenen %${pct(p.added, total)} <b>·</b> yapılan %${pct(p.done, done)}</p>
-        </div>`).join("")}
+    <div class="person-cards">
+      ${byPerson.map((p) => {
+        const isEmir = p.name === "Emir";
+        const avatarSrc = isEmir ? "./in_app_e_pink.png" : "./in_app_e_blue.png";
+        const color = PERSON_COLORS[p.name];
+        const donePercent = pct(p.done, p.added);
+        return `
+          <div class="person-card" style="--person-color:${color}">
+            <div class="person-card-top">
+              <img src="${avatarSrc}" alt="${p.name}" class="person-avatar" />
+              <div class="person-info">
+                <span class="person-name">${p.name}</span>
+                <span class="person-rate">%${donePercent} yapıldı</span>
+              </div>
+            </div>
+            <div class="person-big-stat">
+              <span class="person-count">${p.added}</span>
+              <span class="person-count-unit">ekledi</span>
+            </div>
+            <div class="stat-bar"><i style="width:${donePercent}%"></i></div>
+            <p class="person-stats-foot">${p.added} ekledi <b>·</b> ${p.done} yaptı</p>
+          </div>
+        `;
+      }).join("")}
+    </div>
+
+    <div class="stat-card split-shares-card">
       <div class="split-label"><span>eklenen payı</span></div>
       <div class="stat-split">${split(byPerson.map((p) => ({ name: p.name, value: pct(p.added, total) })))}</div>
       <div class="split-label"><span>yapılan payı</span></div>
       <div class="stat-split">${split(byPerson.map((p) => ({ name: p.name, value: pct(p.done, done) })))}</div>
     </div>
 
+    <!-- 4. Monthly Column Chart -->
+    <div class="feed-meta"><span>aylık grafik</span><span>son ${last6Months.length} ay</span></div>
+    <div class="stat-card month-chart-card">
+      <div class="month-chart-legend">
+        <span><i class="legend-swatch swatch-emir-solid"></i>Emir yapılan</span>
+        <span><i class="legend-swatch swatch-emir-hatched"></i>kalan</span>
+        <span><i class="legend-swatch swatch-eylul-solid"></i>Eylül yapılan</span>
+        <span><i class="legend-swatch swatch-eylul-hatched"></i>kalan</span>
+      </div>
+      <div class="month-chart">
+        ${last6Months.map((m) => {
+          const emirA = m.people["Emir"]?.added || 0;
+          const emirD = m.people["Emir"]?.done || 0;
+          const eylulA = m.people["Eylül"]?.added || 0;
+          const eylulD = m.people["Eylül"]?.done || 0;
+
+          const emirH = Math.max(Math.round((emirA / maxAdded) * 110), emirA > 0 ? 6 : 0);
+          const eylulH = Math.max(Math.round((eylulA / maxAdded) * 110), eylulA > 0 ? 6 : 0);
+
+          return `
+            <div class="chart-month-group">
+              <div class="chart-bars">
+                <!-- Emir Column -->
+                <div class="chart-col col-emir" style="height:${emirH}px;" title="Emir: ${emirD}/${emirA}">
+                  <div class="col-segment col-hatched" style="flex:${emirA - emirD};"></div>
+                  <div class="col-segment col-solid" style="flex:${emirD};"></div>
+                </div>
+                <!-- Eylül Column -->
+                <div class="chart-col col-eylul" style="height:${eylulH}px;" title="Eylül: ${eylulD}/${eylulA}">
+                  <div class="col-segment col-hatched" style="flex:${eylulA - eylulD};"></div>
+                  <div class="col-segment col-solid" style="flex:${eylulD};"></div>
+                </div>
+              </div>
+              <span class="chart-month-label">${shortMonthName(m.date)}</span>
+            </div>
+          `;
+        }).join("")}
+      </div>
+      <div class="chart-baseline"></div>
+    </div>
+
+    <!-- 5. Analiz Facts Card -->
     <div class="feed-meta"><span>analiz</span><span>${monthList.length} ay</span></div>
-    <div class="stat-card stat-facts">
+    <div class="stat-card stat-facts ruled-paper-note">
+      <div class="note-pin"></div>
       <p><span>bu ay eklenen</span><strong>${thisMonth}</strong></p>
       <p><span>geçen ay eklenen</span><strong>${lastMonth}</strong></p>
       <p><span>aylık ortalama</span><strong>${(total / monthList.length).toFixed(1)}</strong></p>
       <p><span>en yoğun ay</span><strong>${monthName(busiest.date)} (${busiest.added})</strong></p>
     </div>
 
-    <div class="feed-meta"><span>aylık</span><span>eklenen / yapılan</span></div>
+    <!-- 6. Compact Monthly Breakdown -->
+    <div class="feed-meta"><span>aylık detay</span><span>eklenen / yapılan</span></div>
     <div class="month-list">
       ${monthList.map((m) => `
-        <div class="stat-card month-stat">
+        <div class="stat-card month-stat compact-month-stat">
           <div class="person-stat-head"><strong>${monthName(m.date)}</strong><span>%${pct(m.done, m.added)} yapıldı</span></div>
           <div class="stat-bar"><i style="width:${pct(m.done, m.added)}%"></i></div>
-          <p>${m.added} eklendi <b>·</b> ${m.done} yapıldı</p>
-          ${people.map((name) => `<p class="month-person" style="--person-color:${PERSON_COLORS[name]}"><span>${name}</span>${m.people[name].added} ekledi · ${m.people[name].done} yapıldı</p>`).join("")}
+          <div class="compact-month-meta">
+            <span>Toplam: ${m.added} eklendi · ${m.done} yapıldı</span>
+          </div>
+          <div class="month-people-row">
+            ${people.map((name) => `
+              <span class="month-person-badge" style="--person-color:${PERSON_COLORS[name]}">
+                <b>${name}:</b> ${m.people[name].added} eklendi · ${m.people[name].done} yapıldı
+              </span>
+            `).join("")}
+          </div>
         </div>`).join("")}
     </div>
   `;

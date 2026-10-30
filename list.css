@@ -1,0 +1,387 @@
+/* 2E - Liste (Todo List) Redesign */
+
+/* Section Head: Highlight swipe on Liste h2 & 54px dotted progress ring */
+.list-screen .section-head h2,
+#list-screen .section-head h2,
+.section-head h2 {
+  position: relative;
+  display: inline-block;
+  font-family: 'Caveat', cursive;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+  padding: 0 4px;
+  line-height: 1.1;
+}
+
+.list-screen .section-head h2::after,
+#list-screen .section-head h2::after,
+.section-head h2::after {
+  content: "";
+  position: absolute;
+  left: -4px;
+  right: -6px;
+  bottom: 2px;
+  height: 42%;
+  background: color-mix(in srgb, var(--pink) 32%, transparent);
+  border-radius: 3px;
+  z-index: -1;
+  transform: rotate(-0.8deg);
+  pointer-events: none;
+}
+
+/* Progress Ring: 54px with dotted track */
+.progress-ring,
+svg.progress-ring {
+  width: 54px !important;
+  height: 54px !important;
+}
+
+.progress-ring .track,
+.progress-ring circle:first-child {
+  stroke-dasharray: 2 4 !important;
+  stroke: var(--ink-faint) !important;
+  stroke-width: 3.5px !important;
+}
+
+.progress-ring .fill,
+.progress-ring circle:last-child {
+  stroke-width: 4px !important;
+  stroke-linecap: round !important;
+}
+
+/* Composer Form & Input */
+.todo-form,
+#todo-form {
+  position: relative;
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  margin-bottom: 1.1rem;
+}
+
+.todo-form input,
+#todo-input {
+  flex: 1;
+  min-height: 48px;
+  padding: 0.65rem 0.9rem 0.65rem 38px;
+  background-color: var(--paper-card);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='%235b4a68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z'/%3E%3Cpath d='m15 5 4 4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  border: 1.5px solid var(--ink-faint);
+  border-radius: 6px;
+  color: var(--ink);
+  font-family: var(--ui-font);
+  font-size: 1rem;
+  box-shadow: 2px 2px 0 rgba(42, 31, 61, 0.06);
+  transition: border-color 180ms var(--ease-out), box-shadow 180ms var(--ease-out);
+}
+
+.todo-form input:focus,
+#todo-input:focus {
+  border-color: var(--pink);
+  outline: none;
+  box-shadow: 3px 3px 0 rgba(217, 111, 151, 0.2);
+}
+
+/* EKLE Stamp Button */
+.todo-form button[type="submit"],
+#todo-form button[type="submit"],
+.btn-add {
+  min-width: 72px;
+  min-height: 48px;
+  padding: 0.5rem 1rem;
+  background: var(--paper-card);
+  color: var(--pink-deep);
+  border: 2px dashed var(--pink);
+  border-radius: 6px;
+  font-family: 'Caveat', cursive;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transform: rotate(-1.5deg);
+  box-shadow: 2px 2px 0 rgba(217, 111, 151, 0.25);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 140ms var(--ease-pop), box-shadow 140ms var(--ease-out);
+  touch-action: manipulation;
+}
+
+.todo-form button[type="submit"]:active,
+#todo-form button[type="submit"]:active,
+.btn-add:active {
+  transform: rotate(-0.5deg) scale(0.96);
+  box-shadow: 1px 1px 0 rgba(217, 111, 151, 0.2);
+}
+
+/* List Dividers */
+.list-divider {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.8rem 0.25rem 0.25rem;
+  margin: 0.4rem 0 0.1rem;
+  user-select: none;
+  pointer-events: none;
+}
+
+.list-divider .divider-text {
+  font-family: 'Caveat', cursive;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+.list-divider .divider-line {
+  flex: 1;
+  height: 12px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='12' viewBox='0 0 40 12'%3E%3Cpath d='M0 6 Q 10 1, 20 6 T 40 6' fill='none' stroke='rgba(91,74,104,0.32)' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: left center;
+}
+
+/* Todo List Items - Index Card Style */
+.todo-item {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 80px;
+  padding: 0.85rem 0.65rem 0.75rem;
+  margin-top: 10px;
+  border: 1.5px solid var(--ink-faint);
+  border-radius: 6px;
+  background: var(--paper-card);
+  box-shadow: 4px 4px 0 rgba(42, 31, 61, 0.08);
+  transition: transform 260ms var(--ease-out), opacity 260ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+
+/* Faint stacked second sheet peeking behind each card */
+.todo-item::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 6px;
+  background: var(--paper-card);
+  border: 1.5px solid rgba(42, 31, 61, 0.1);
+  box-shadow: 2px 2px 0 rgba(42, 31, 61, 0.05);
+  z-index: -1;
+  pointer-events: none;
+  transition: transform 220ms var(--ease-out);
+}
+
+.todo-item:nth-of-type(odd)::before {
+  transform: rotate(1.1deg) translate(2px, 1px);
+}
+
+.todo-item:nth-of-type(even)::before {
+  transform: rotate(-1.1deg) translate(-2px, 1.5px);
+}
+
+/* Tiny alternating tilt per card */
+.todo-item:nth-of-type(odd) {
+  transform: rotate(-0.3deg);
+}
+
+.todo-item:nth-of-type(even) {
+  transform: rotate(0.3deg);
+}
+
+/* Washi Tape Strip */
+.todo-tape {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  width: 88px;
+  height: 20px;
+  background-color: var(--person-color, var(--pink));
+  opacity: 0.45;
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.4) 0px,
+    rgba(255, 255, 255, 0.4) 3px,
+    transparent 3px,
+    transparent 7px
+  );
+  clip-path: polygon(
+    0% 0%, 5% 45%, 0% 100%,
+    95% 100%, 100% 55%, 95% 0%
+  );
+  box-shadow: 0 1px 3px rgba(42, 31, 61, 0.12);
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.todo-item:nth-of-type(odd) .todo-tape {
+  left: 26%;
+  transform: translateX(-50%) rotate(-1.8deg);
+}
+
+.todo-item:nth-of-type(even) .todo-tape {
+  left: 74%;
+  transform: translateX(-50%) rotate(2.2deg);
+}
+
+/* Hand-drawn Checkbox with rough SVG filter */
+.todo-check {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: var(--green);
+  touch-action: manipulation;
+}
+
+.todo-check svg {
+  width: 36px;
+  height: 36px;
+}
+
+.todo-check svg rect {
+  filter: url(#rough);
+  stroke-width: 1.8px;
+  stroke: var(--ink-soft);
+  fill: rgba(255, 255, 255, 0.65);
+}
+
+.todo-item.done .todo-check svg rect {
+  stroke: var(--green);
+  fill: color-mix(in srgb, var(--green) 15%, transparent);
+}
+
+/* Delete Item button (min 44px touch target) */
+.delete-item {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--ink-faint);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color 150ms ease, transform 150ms var(--ease-pop);
+}
+
+.delete-item:hover,
+.delete-item:active {
+  color: var(--danger);
+  transform: scale(1.1);
+}
+
+.delete-item svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Text and Person Line */
+.todo-main {
+  min-width: 0;
+}
+
+.todo-text {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.35;
+  color: var(--ink);
+  word-break: break-word;
+}
+
+.todo-details {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 5px;
+}
+
+.todo-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--person-color, var(--pink));
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.todo-person {
+  font-family: 'Caveat', cursive;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--person-color, var(--ink));
+  line-height: 1;
+}
+
+.todo-date {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  opacity: 0.85;
+}
+
+/* Done cards look archived */
+.todo-item.done {
+  background: var(--paper-deep);
+  opacity: 0.76;
+  border-color: rgba(42, 31, 61, 0.12);
+}
+
+.todo-item.done::before {
+  background: var(--paper-deep);
+  opacity: 0.6;
+}
+
+.todo-item.done .todo-tape {
+  opacity: 0.22;
+  filter: grayscale(40%);
+}
+
+.todo-item.done .todo-text {
+  text-decoration: line-through;
+  text-decoration-color: var(--green);
+  text-decoration-thickness: 2.5px;
+  color: var(--ink-soft);
+  opacity: 0.78;
+}
+
+/* States: removing, pending, settled */
+.todo-item.pending {
+  opacity: 0.65;
+}
+
+.todo-item.removing {
+  opacity: 0;
+  transform: translateX(20px) scale(0.96) !important;
+}
+
+/* Prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .todo-item,
+  .todo-item::before,
+  .todo-item:nth-of-type(odd),
+  .todo-item:nth-of-type(even),
+  .todo-form button[type="submit"],
+  .section-head h2::after {
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}

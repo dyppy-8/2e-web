@@ -1,0 +1,467 @@
+/* ==========================================================================
+   2E App Chrome Redesign - Paper Notebook Aesthetics
+   Loaded after styles.css to style App Shell, Header, Floating Dock, Sheet, Login, Toast
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Root Variables & App Shell Adjustments
+   -------------------------------------------------------------------------- */
+:root {
+  --tab-height: 64px;
+}
+
+.panel-scroll,
+#todo-panel .panel-scroll,
+#stats-panel .panel-scroll {
+  padding-bottom: calc(var(--tab-height, 64px) + 14px + var(--safe-bottom) + 24px) !important;
+  scroll-padding-bottom: calc(var(--tab-height, 64px) + 14px + var(--safe-bottom) + 20px) !important;
+}
+
+/* --------------------------------------------------------------------------
+   2. Header (.app-header, logo, title, date, settings button)
+   -------------------------------------------------------------------------- */
+.app-header {
+  position: relative;
+  background: linear-gradient(180deg, rgba(246, 238, 220, 0.98), rgba(246, 238, 220, 0.85));
+  border-bottom: 2px dashed rgba(42, 31, 61, 0.16);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Washi-tape accent on the header logo */
+.app-header::before {
+  content: '';
+  position: absolute;
+  top: calc(0.6rem + var(--safe-top));
+  left: 1.1rem;
+  width: 38px;
+  height: 12px;
+  background: rgba(217, 111, 151, 0.5);
+  transform: rotate(-10deg);
+  border-left: 2px dashed rgba(255, 255, 255, 0.5);
+  border-right: 2px dashed rgba(255, 255, 255, 0.5);
+  box-shadow: 0 1px 2px rgba(42, 31, 61, 0.1);
+  z-index: 25;
+  pointer-events: none;
+}
+
+.header-logo {
+  position: relative;
+  border-radius: 12px;
+  background: var(--paper-card);
+  border: 2px solid rgba(42, 31, 61, 0.12);
+  box-shadow: 2px 2px 0 rgba(42, 31, 61, 0.08);
+  transition: transform 180ms var(--ease-pop);
+}
+
+.header-logo:hover {
+  transform: rotate(-4deg) scale(1.04);
+}
+
+.header-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+#header-kicker,
+.header-title > span:first-child {
+  font-family: var(--ui-font);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  opacity: 0.85;
+}
+
+.header-title strong,
+strong#header-name {
+  position: relative;
+  display: inline-block;
+  overflow: visible;
+  color: var(--ink);
+  font-family: 'Caveat', cursive;
+  font-size: 2.35rem;
+  font-weight: 700;
+  line-height: 1.05;
+  padding: 0 4px 4px;
+  margin: 0;
+}
+
+/* Hand-drawn marker underline swash in var(--me-color, var(--pink)) */
+.header-title strong::after,
+strong#header-name::after {
+  content: '';
+  position: absolute;
+  left: 2%;
+  bottom: 1px;
+  width: 96%;
+  height: 8px;
+  background-color: var(--me-color, var(--pink));
+  opacity: 0.85;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 18' preserveAspectRatio='none'%3E%3Cpath d='M3,12 C25,4 45,15 70,8 C90,3 105,14 117,10' fill='none' stroke='black' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 18' preserveAspectRatio='none'%3E%3Cpath d='M3,12 C25,4 45,15 70,8 C90,3 105,14 117,10' fill='none' stroke='black' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  pointer-events: none;
+}
+
+/* Header date subtitle */
+span#header-date,
+.header-title span.header-date {
+  display: block;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  opacity: 0.85;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  margin-top: 7px;
+  line-height: 1.2;
+}
+
+/* --------------------------------------------------------------------------
+   3. Bottom Tabs: Floating Dock
+   -------------------------------------------------------------------------- */
+.bottom-tabs {
+  position: fixed;
+  left: 14px;
+  right: 14px;
+  bottom: calc(10px + var(--safe-bottom));
+  width: auto;
+  height: var(--tab-height);
+  padding: 6px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: rgba(246, 238, 220, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 2px solid var(--ink-faint);
+  border-radius: 24px;
+  box-shadow: 4px 4px 0 rgba(42, 31, 61, 0.12);
+  z-index: 22;
+}
+
+.tab {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  background: transparent;
+  border: none;
+  border-radius: 18px;
+  color: var(--ink-soft);
+  font-family: var(--ui-font);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: color 240ms ease, transform 160ms ease;
+}
+
+.tab:active {
+  transform: scale(0.96);
+}
+
+.tab.active {
+  color: var(--paper-card);
+}
+
+.tab-indicator {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: calc(50% - 10px);
+  height: calc(100% - 12px);
+  background: var(--ink);
+  border-radius: 18px;
+  box-shadow: 2px 2px 0 rgba(42, 31, 61, 0.18);
+  pointer-events: none;
+  z-index: 1;
+  transition: transform 380ms var(--ease-sheet);
+  transform: translate(0, 0);
+}
+
+/* Indicator slides under active stats tab */
+.bottom-tabs:has(.tab[data-tab="stats"].active) .tab-indicator,
+.bottom-tabs.stats-active .tab-indicator {
+  transform: translate(calc(100% + 8px), 0);
+}
+
+@media (min-width: 720px) {
+  .bottom-tabs {
+    left: 50%;
+    right: auto;
+    width: calc(min(100vw, 460px) - 28px);
+    transform: translateX(-50%);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. Settings Sheet
+   -------------------------------------------------------------------------- */
+#settings-sheet .sheet-panel {
+  background: var(--paper);
+  border-top: 3px solid var(--ink);
+  box-shadow: 0 -12px 36px rgba(42, 31, 61, 0.18);
+  border-radius: 28px 28px 0 0;
+}
+
+#settings-sheet .sheet-grip {
+  width: 44px;
+  height: 5px;
+  background: var(--ink-soft);
+  opacity: 0.35;
+  border-radius: 999px;
+  margin: 0.65rem auto 0.4rem;
+}
+
+#settings-sheet .sheet-head h2 {
+  font-family: 'Caveat', cursive;
+  font-size: 2.1rem;
+  color: var(--ink);
+}
+
+/* Profile Row with bigger avatar */
+#settings-sheet .profile-line {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  background: var(--paper-card);
+  border: 2px solid var(--ink-faint);
+  border-radius: 16px;
+  padding: 1rem 1.1rem;
+  box-shadow: 3px 3px 0 rgba(42, 31, 61, 0.08);
+  margin-bottom: 1.1rem;
+}
+
+#settings-sheet .profile-line::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 22px;
+  width: 32px;
+  height: 11px;
+  background: rgba(209, 163, 74, 0.45);
+  border-left: 2px dashed rgba(255, 255, 255, 0.5);
+  border-right: 2px dashed rgba(255, 255, 255, 0.5);
+  transform: rotate(-2deg);
+  pointer-events: none;
+}
+
+#settings-sheet img.settings-person-mark,
+#settings-sheet .profile-line img {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 3.5px var(--me-color, var(--pink)), 3px 3px 0 rgba(42, 31, 61, 0.12);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+#settings-sheet .profile-line strong,
+#settings-sheet .profile-name {
+  font-family: 'Caveat', cursive;
+  font-size: 1.85rem;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+/* Settings Sections as Index Cards with washi tape strip */
+#settings-sheet .toggle-line,
+#settings-sheet .password-box {
+  position: relative;
+  background: var(--paper-card);
+  border: 2px solid var(--ink-faint);
+  border-radius: 16px;
+  padding: 1rem 1.1rem;
+  box-shadow: 3px 3px 0 rgba(42, 31, 61, 0.08);
+  margin-bottom: 1.1rem;
+}
+
+#settings-sheet .toggle-line::before,
+#settings-sheet .password-box::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 24px;
+  width: 34px;
+  height: 10px;
+  background: rgba(90, 167, 216, 0.4);
+  border-left: 2px dashed rgba(255, 255, 255, 0.4);
+  border-right: 2px dashed rgba(255, 255, 255, 0.4);
+  transform: rotate(1.5deg);
+  pointer-events: none;
+}
+
+#settings-sheet .password-box::before {
+  background: rgba(111, 170, 116, 0.4);
+  transform: rotate(-1.5deg);
+}
+
+/* Calmer Danger Sign-out Button */
+#settings-sheet #sign-out.button-danger,
+#settings-sheet .button-danger {
+  background: rgba(182, 83, 83, 0.07);
+  border: 2px dashed var(--danger);
+  border-radius: 14px;
+  color: var(--danger);
+  box-shadow: none;
+  font-weight: 700;
+  transition: background 180ms ease, transform 160ms ease;
+}
+
+#settings-sheet #sign-out.button-danger:hover,
+#settings-sheet .button-danger:hover {
+  background: rgba(182, 83, 83, 0.15);
+  transform: translateY(-1px);
+}
+
+/* --------------------------------------------------------------------------
+   5. Login Screen (.auth-view, .auth-paper, fields, notes)
+   -------------------------------------------------------------------------- */
+.auth-paper {
+  position: relative;
+  background: var(--paper-card);
+  border: 2px solid rgba(42, 31, 61, 0.14);
+  border-radius: 20px;
+  padding: 2.3rem 1.7rem;
+  transform: rotate(-1.2deg);
+  /* Stacked sheet behind effect */
+  box-shadow:
+    5px 5px 0 var(--paper-deep),
+    6px 6px 0 rgba(42, 31, 61, 0.14),
+    12px 12px 0 rgba(42, 31, 61, 0.08);
+}
+
+/* Top corner washi tape strips */
+.auth-paper {
+  padding: 1.75rem 1.6rem 1.35rem;
+}
+
+.auth-paper::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -8px;
+  width: 56px;
+  height: 20px;
+  background: rgba(217, 111, 151, 0.48);
+  transform: rotate(-25deg);
+  border-left: 2px dashed rgba(255, 255, 255, 0.5);
+  border-right: 2px dashed rgba(255, 255, 255, 0.5);
+  box-shadow: 0 1px 3px rgba(42, 31, 61, 0.12);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.auth-paper::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: -8px;
+  width: 56px;
+  height: 20px;
+  background: rgba(90, 167, 216, 0.48);
+  transform: rotate(25deg);
+  border-left: 2px dashed rgba(255, 255, 255, 0.5);
+  border-right: 2px dashed rgba(255, 255, 255, 0.5);
+  box-shadow: 0 1px 3px rgba(42, 31, 61, 0.12);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.auth-logo {
+  width: 112px;
+  height: 112px;
+  margin: 0 auto 0.75rem;
+  transform: rotate(-2deg);
+  border-radius: 20px;
+  object-fit: contain;
+  filter: drop-shadow(2px 2px 0 rgba(42, 31, 61, 0.1));
+}
+
+.auth-paper h1 {
+  font-family: 'Caveat', cursive;
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--ink);
+  margin-bottom: 0.35rem;
+}
+
+.auth-copy {
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+/* Inputs styled as hand-drawn notebook entry fields */
+.auth-form .field {
+  margin-bottom: 1.1rem;
+}
+
+.auth-form .field input {
+  width: 100%;
+  border: none;
+  border-bottom: 2px dashed rgba(42, 31, 61, 0.28);
+  border-radius: 0;
+  background: transparent;
+  padding: 0.65rem 0.25rem;
+  color: var(--ink);
+  font-size: 1.05rem;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+
+.auth-form .field input:focus {
+  border-bottom: 2px solid var(--pink);
+  background: rgba(255, 251, 240, 0.6);
+}
+
+/* --------------------------------------------------------------------------
+   6. Toast: Sticky Note / Ink Stamp
+   -------------------------------------------------------------------------- */
+.toast {
+  position: fixed;
+  left: 1rem;
+  right: 1rem;
+  bottom: calc(var(--tab-height) + var(--safe-bottom) + 1.2rem);
+  z-index: 44;
+  background: var(--paper-card);
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  box-shadow: 4px 4px 0 rgba(42, 31, 61, 0.2);
+  color: var(--ink);
+  font-family: 'Caveat', cursive;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.2;
+  padding: 0.75rem 1.25rem;
+  text-align: center;
+  pointer-events: none;
+  transform: translateY(20px) rotate(-1.5deg);
+  transition: opacity 220ms ease, transform 380ms var(--ease-sheet);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0) rotate(-1.5deg);
+}
+
+@media (min-width: 720px) {
+  .toast {
+    left: 50%;
+    right: auto;
+    width: min(calc(100vw - 2rem), 400px);
+    transform: translate(-50%, 20px) rotate(-1.5deg);
+  }
+
+  .toast.show {
+    transform: translate(-50%, 0) rotate(-1.5deg);
+  }
+}

@@ -225,7 +225,7 @@
 
   /* ==========================================================================
      Feature 2: BOOT SCREEN GENERATIVE PENCIL ORBIT (Algorithmic Art)
-     ========================================================================== */
+     ========================================================================= */
   try {
     const bootScreen = document.querySelector('#boot-screen');
     if (
@@ -293,7 +293,6 @@
               a +
               Math.PI / 2 +
               0.55 * Math.sin(currX * 0.018 + s1) * Math.cos(currY * 0.016 + s2);
-            // Slight pull back toward radius R (heading += (R - dist)/R * 0.9 pointing outward/inward accordingly):
             heading += ((dist - R) / R) * 0.9;
 
             currX += Math.cos(heading) * 2.2;
@@ -407,7 +406,6 @@
       const emptySeed = hashString(getTodayDateStr() + '-empty-art-salt');
       const rnd = mulberry32(emptySeed);
 
-      // Pre-compute loops: c1=(46,40) and c2=(74,40), base radius 22
       const loops = [
         {
           center: { x: 46, y: 40 },
@@ -436,7 +434,6 @@
         return { color: loop.color, pts };
       });
 
-      // 3 tiny sparkles (asterisks) in ink '#2a1f3d' alpha 0.35 at seeded spots near the top
       const sparkles = [];
       for (let s = 0; s < 3; s++) {
         const sx = 28 + rnd() * 64;
@@ -472,7 +469,6 @@
           const totalPts = loop.pts.length;
           const maxIdx = Math.max(1, Math.min(totalPts - 1, Math.floor(progress * (totalPts - 1))));
 
-          // Pass 1: original (alpha 0.8, lineWidth 1.8)
           ctx.strokeStyle = loop.color;
           ctx.globalAlpha = 0.8;
           ctx.lineWidth = 1.8;
@@ -485,7 +481,6 @@
           }
           ctx.stroke();
 
-          // Pass 2: 0.6px offset at half alpha (pencil)
           ctx.globalAlpha = 0.4;
           ctx.beginPath();
           ctx.moveTo(loop.pts[0].x + 0.42, loop.pts[0].y + 0.42);
@@ -495,7 +490,6 @@
           ctx.stroke();
         }
 
-        // 3 tiny sparkles in ink '#2a1f3d' alpha 0.35
         if (progress > 0.7) {
           const alphaFactor = Math.min(1, (progress - 0.7) / 0.3);
           ctx.strokeStyle = '#2a1f3d';
@@ -601,13 +595,14 @@
         try {
           const list = document.querySelector('#todo-list');
           if (!list) return;
+          const listRect = list.getBoundingClientRect();
           const items = list.querySelectorAll('.todo-item');
           const nextSnapshot = new Map();
           for (let i = 0; i < items.length; i++) {
             const el = items[i];
             const id = el.dataset ? el.dataset.id : el.getAttribute('data-id');
             if (id) {
-              nextSnapshot.set(id, el.getBoundingClientRect().top);
+              nextSnapshot.set(id, el.getBoundingClientRect().top - listRect.top);
             }
           }
           snapshot = nextSnapshot;
@@ -698,15 +693,16 @@
 
           const isSnapshotFresh = performance.now() - snapshotTime < 3000;
           const flipItems = [];
+          const listRect = todoList.getBoundingClientRect();
 
           // READ PHASE: Read all rects before any style writes to avoid layout thrash
           if (!prefersReducedMotion && isSnapshotFresh && snapshot.size > 0) {
             for (const el of settledItems) {
               const id = el.dataset ? el.dataset.id : el.getAttribute('data-id');
               if (id && snapshot.has(id)) {
-                const oldTop = snapshot.get(id);
-                const newTop = el.getBoundingClientRect().top;
-                const dy = oldTop - newTop;
+                const oldRelTop = snapshot.get(id);
+                const newRelTop = el.getBoundingClientRect().top - listRect.top;
+                const dy = oldRelTop - newRelTop;
                 if (Math.abs(dy) > 1) {
                   flipItems.push({ el, dy });
                 }
@@ -715,13 +711,15 @@
           }
 
           // Build fresh untransformed snapshot for all current items before transforms are set
+          // Skip items that currently have an inline transform (mid-animation)
           const currentItems = todoList.querySelectorAll('.todo-item');
           const baselineSnapshot = new Map();
           for (let i = 0; i < currentItems.length; i++) {
             const it = currentItems[i];
+            if (it.style && it.style.transform) continue;
             const itId = it.dataset ? it.dataset.id : it.getAttribute('data-id');
             if (itId) {
-              baselineSnapshot.set(itId, it.getBoundingClientRect().top);
+              baselineSnapshot.set(itId, it.getBoundingClientRect().top - listRect.top);
             }
           }
 
@@ -733,28 +731,36 @@
             }
 
             requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                for (const item of flipItems) {
-                  const el = item.el;
-                  el.style.transition = 'transform 560ms cubic-bezier(.32,.72,0,1)';
-                  el.style.transform = '';
+              try {
+                requestAnimationFrame(() => {
+                  try {
+                    for (const item of flipItems) {
+                      const el = item.el;
+                      el.style.transition = 'transform 560ms cubic-bezier(.32,.72,0,1)';
+                      el.style.transform = '';
 
-                  let cleaned = false;
-                  const cleanup = () => {
-                    if (cleaned) return;
-                    cleaned = true;
-                    el.style.transition = '';
-                    el.removeEventListener('transitionend', onEnd);
-                  };
-                  const onEnd = (e) => {
-                    if (e.target === el && e.propertyName === 'transform') {
-                      cleanup();
+                      let cleaned = false;
+                      const cleanup = () => {
+                        try {
+                          if (cleaned) return;
+                          cleaned = true;
+                          el.style.transition = '';
+                          el.removeEventListener('transitionend', onEnd);
+                        } catch (_) {}
+                      };
+                      const onEnd = (e) => {
+                        try {
+                          if (e.target === el && e.propertyName === 'transform') {
+                            cleanup();
+                          }
+                        } catch (_) {}
+                      };
+                      el.addEventListener('transitionend', onEnd);
+                      setTimeout(cleanup, 700);
                     }
-                  };
-                  el.addEventListener('transitionend', onEnd);
-                  setTimeout(cleanup, 700);
-                }
-              });
+                  } catch (_) {}
+                });
+              } catch (_) {}
             });
           }
 
@@ -824,53 +830,79 @@
       // 1. Stat tiles count up
       const tiles = document.querySelectorAll('#stats-body .stat-tile strong');
       tiles.forEach((strong) => {
-        const text = strong.textContent.trim();
-        const match = text.match(/^(%?)(\d+)$/);
-        if (!match) return;
+        try {
+          let target;
+          let prefix = '';
 
-        const prefix = match[1] || '';
-        const target = parseInt(match[2], 10);
-        if (isNaN(target)) return;
-
-        if (activeTileAnims.has(strong)) {
-          cancelAnimationFrame(activeTileAnims.get(strong));
-          activeTileAnims.delete(strong);
-        }
-
-        const duration = 700;
-        const startTime = performance.now();
-
-        function step(now) {
-          const elapsed = now - startTime;
-          const progress = Math.min(1, elapsed / duration);
-          const eased = 1 - Math.pow(1 - progress, 3);
-          const current = Math.round(target * eased);
-          strong.textContent = `${prefix}${current}`;
-
-          if (progress < 1) {
-            const id = requestAnimationFrame(step);
-            activeTileAnims.set(strong, id);
+          // Cache final value in strong.dataset.target on first read and always animate toward dataset.target
+          if (strong.dataset && strong.dataset.target != null && strong.dataset.target !== '') {
+            target = parseInt(strong.dataset.target, 10);
+            prefix = strong.dataset.prefix || '';
           } else {
-            strong.textContent = text;
+            const text = strong.textContent.trim();
+            const match = text.match(/^(%?)(\d+)$/);
+            if (!match) return;
+
+            prefix = match[1] || '';
+            target = parseInt(match[2], 10);
+            if (isNaN(target)) return;
+
+            if (strong.dataset) {
+              strong.dataset.target = String(target);
+              strong.dataset.prefix = prefix;
+            }
+          }
+
+          if (isNaN(target)) return;
+
+          if (activeTileAnims.has(strong)) {
+            cancelAnimationFrame(activeTileAnims.get(strong));
             activeTileAnims.delete(strong);
           }
-        }
 
-        const initialId = requestAnimationFrame(step);
-        activeTileAnims.set(strong, initialId);
+          const duration = 700;
+          const startTime = performance.now();
+
+          function step(now) {
+            try {
+              const elapsed = now - startTime;
+              const progress = Math.min(1, elapsed / duration);
+              const eased = 1 - Math.pow(1 - progress, 3);
+              const current = Math.round(target * eased);
+              strong.textContent = `${prefix}${current}`;
+
+              if (progress < 1) {
+                const id = requestAnimationFrame(step);
+                activeTileAnims.set(strong, id);
+              } else {
+                strong.textContent = `${prefix}${target}`;
+                activeTileAnims.delete(strong);
+              }
+            } catch (_) {}
+          }
+
+          const initialId = requestAnimationFrame(step);
+          activeTileAnims.set(strong, initialId);
+        } catch (_) {}
       });
 
       // 2. Stat bars grow
       const bars = document.querySelectorAll('#stats-body .stat-bar i, #stats-body .stat-split i');
       bars.forEach((el) => {
-        const origWidth = el.style.width;
-        if (!origWidth || origWidth === '0%') return;
-        el.style.width = '0%';
-        requestAnimationFrame(() => {
+        try {
+          const origWidth = el.style.width;
+          if (!origWidth || origWidth === '0%') return;
+          el.style.width = '0%';
           requestAnimationFrame(() => {
-            el.style.width = origWidth;
+            try {
+              requestAnimationFrame(() => {
+                try {
+                  el.style.width = origWidth;
+                } catch (_) {}
+              });
+            } catch (_) {}
           });
-        });
+        } catch (_) {}
       });
     }
 
@@ -913,6 +945,19 @@
       const panel = sheet.querySelector('.sheet-panel');
       const handles = sheet.querySelectorAll('.sheet-grip, .sheet-head');
 
+      // Observe sheet class: whenever sheet gets class 'open', remove leftover drag styles
+      if (typeof MutationObserver !== 'undefined') {
+        const sheetClassObserver = new MutationObserver(() => {
+          try {
+            if (sheet.classList.contains('open')) {
+              sheet.style.removeProperty('--drag-y');
+              sheet.style.removeProperty('--drag-progress');
+            }
+          } catch (_) {}
+        });
+        sheetClassObserver.observe(sheet, { attributes: true, attributeFilter: ['class'] });
+      }
+
       function rubber(x, d, c = 0.55) {
         return (x * d * c) / (d + c * x);
       }
@@ -925,66 +970,73 @@
         let currentPointerId = null;
 
         const onPointerMove = (e) => {
-          if (!isDragging || e.pointerId !== currentPointerId) return;
-          const now = performance.now();
-          history.push({ y: e.clientY, t: now });
-          if (history.length > 6) history.shift();
+          try {
+            if (!isDragging || e.pointerId !== currentPointerId) return;
+            const now = performance.now();
+            history.push({ y: e.clientY, t: now });
+            if (history.length > 6) history.shift();
 
-          let dy = e.clientY - startY;
-          if (dy < 0) {
-            dy = -rubber(-dy, panelHeight);
-          }
+            let dy = e.clientY - startY;
+            if (dy < 0) {
+              dy = -rubber(-dy, panelHeight);
+            }
 
-          sheet.style.setProperty('--drag-y', `${dy}px`);
-          sheet.style.setProperty('--drag-progress', String(Math.max(0, Math.min(1, dy / panelHeight))));
+            sheet.style.setProperty('--drag-y', `${dy}px`);
+            sheet.style.setProperty('--drag-progress', String(Math.max(0, Math.min(1, dy / panelHeight))));
+          } catch (_) {}
         };
 
         const onPointerEnd = (e) => {
-          if (!isDragging || e.pointerId !== currentPointerId) return;
-          isDragging = false;
-          sheet.classList.remove('dragging');
-
           try {
-            handle.releasePointerCapture(e.pointerId);
-          } catch (_) {}
+            if (!isDragging || e.pointerId !== currentPointerId) return;
+            isDragging = false;
+            sheet.classList.remove('dragging');
 
-          const now = performance.now();
-          const recent = history.filter((pt) => now - pt.t <= 100);
-          let v = 0;
-          if (recent.length >= 2) {
-            const first = recent[0];
-            const last = recent[recent.length - 1];
-            const dt = (last.t - first.t) / 1000;
-            if (dt > 0.0001) {
-              v = (last.y - first.y) / dt;
+            try {
+              handle.releasePointerCapture(e.pointerId);
+            } catch (_) {}
+
+            const now = performance.now();
+            // push the release point into history before computing velocity
+            history.push({ y: e.clientY, t: now });
+            if (history.length > 6) history.shift();
+
+            const recent = history.filter((pt) => now - pt.t <= 100);
+            let v = 0;
+            if (recent.length >= 2) {
+              const first = recent[0];
+              const last = recent[recent.length - 1];
+              const dt = (last.t - first.t) / 1000;
+              if (dt > 0.0001) {
+                v = (last.y - first.y) / dt;
+              }
             }
-          }
 
-          const totalDy = e.clientY - startY;
-          if (Math.abs(totalDy) < 4) {
-            sheet.style.removeProperty('--drag-y');
-            sheet.style.removeProperty('--drag-progress');
-            return;
-          }
+            const totalDy = e.clientY - startY;
+            if (Math.abs(totalDy) < 4) {
+              sheet.style.removeProperty('--drag-y');
+              sheet.style.removeProperty('--drag-progress');
+              return;
+            }
 
-          const projected = totalDy + (v / 1000) * (0.998 / (1 - 0.998));
-          if (projected > panelHeight * 0.5 || v > 1000) {
-            requestAnimationFrame(() => {
+            const projected = totalDy + (v / 1000) * (0.998 / (1 - 0.998));
+            if (projected > panelHeight * 0.5 || v > 1000) {
+              // Click backdrop and remove --drag-y/--drag-progress in a setTimeout of 480ms
               try {
                 const backdrop = sheet.querySelector('.sheet-backdrop');
                 if (backdrop) backdrop.click();
               } catch (_) {}
+              setTimeout(() => {
+                try {
+                  sheet.style.removeProperty('--drag-y');
+                  sheet.style.removeProperty('--drag-progress');
+                } catch (_) {}
+              }, 480);
+            } else {
               sheet.style.removeProperty('--drag-y');
               sheet.style.removeProperty('--drag-progress');
-            });
-            setTimeout(() => {
-              sheet.style.removeProperty('--drag-y');
-              sheet.style.removeProperty('--drag-progress');
-            }, 480);
-          } else {
-            sheet.style.removeProperty('--drag-y');
-            sheet.style.removeProperty('--drag-progress');
-          }
+            }
+          } catch (_) {}
         };
 
         handle.addEventListener('pointerdown', (e) => {
@@ -1018,7 +1070,111 @@
   } catch (_) {}
 
   /* ==========================================================================
-     Feature 8: HEADER SCROLL EDGE
+     Feature 8: ESCAPE KEY CLOSES SETTINGS SHEET
+     ========================================================================== */
+  try {
+    document.addEventListener('keydown', (e) => {
+      try {
+        if (e.key === 'Escape' || e.key === 'Esc') {
+          const sheet = document.querySelector('#settings-sheet');
+          if (sheet && sheet.classList.contains('open')) {
+            const backdrop = sheet.querySelector('.sheet-backdrop');
+            if (backdrop) {
+              backdrop.click();
+            }
+          }
+        }
+      } catch (_) {}
+    });
+  } catch (_) {}
+
+  /* ==========================================================================
+     Feature 9: CSS :has() FALLBACK FOR BOTTOM TABS
+     ========================================================================== */
+  try {
+    const statsPanel = document.querySelector('#stats-panel');
+    const bottomTabs = document.querySelector('nav.bottom-tabs');
+    if (statsPanel && bottomTabs) {
+      const syncStatsTab = () => {
+        try {
+          const isActive = statsPanel.classList.contains('active');
+          bottomTabs.classList.toggle('stats-active', isActive);
+        } catch (_) {}
+      };
+      syncStatsTab();
+      if (typeof MutationObserver !== 'undefined') {
+        const statsTabObserver = new MutationObserver(syncStatsTab);
+        statsTabObserver.observe(statsPanel, { attributes: true, attributeFilter: ['class'] });
+      }
+    }
+  } catch (_) {}
+
+  /* ==========================================================================
+     Feature 10: HEADER DATE (Turkish)
+     ========================================================================== */
+  try {
+    function updateHeaderDate() {
+      const headerDate = document.querySelector('span#header-date');
+      if (headerDate) {
+        const now = new Date();
+        const dayMonth = new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long' }).format(now);
+        const weekdayStr = new Intl.DateTimeFormat('tr-TR', { weekday: 'long' }).format(now);
+        const weekday = weekdayStr ? weekdayStr.charAt(0).toLocaleUpperCase('tr-TR') + weekdayStr.slice(1) : '';
+        headerDate.textContent = `${dayMonth}, ${weekday}`;
+      }
+    }
+    updateHeaderDate();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', updateHeaderDate, { once: true });
+    }
+  } catch (_) {}
+
+  /* ==========================================================================
+     Feature 11: PERSON COLOR (--me-color)
+     ========================================================================== */
+  try {
+    function updatePersonColor() {
+      const headerName = document.querySelector('strong#header-name');
+      const name = headerName ? headerName.textContent.trim() : '';
+      const color = name === 'Eylül' ? '#5aa7d8' : '#d96f97';
+      if (document.body && document.body.style) {
+        document.body.style.setProperty('--me-color', color);
+      }
+      return headerName;
+    }
+
+    const headerName = updatePersonColor();
+    if (headerName && typeof MutationObserver !== 'undefined') {
+      const nameObserver = new MutationObserver(() => {
+        try {
+          updatePersonColor();
+        } catch (_) {}
+      });
+      nameObserver.observe(headerName, { characterData: true, childList: true, subtree: true });
+    } else if (typeof MutationObserver !== 'undefined') {
+      const bodyObserver = new MutationObserver(() => {
+        try {
+          const hn = document.querySelector('strong#header-name');
+          if (hn) {
+            updatePersonColor();
+            bodyObserver.disconnect();
+            const nameObserver = new MutationObserver(() => {
+              try {
+                updatePersonColor();
+              } catch (_) {}
+            });
+            nameObserver.observe(hn, { characterData: true, childList: true, subtree: true });
+          }
+        } catch (_) {}
+      });
+      if (document.body) {
+        bodyObserver.observe(document.body, { childList: true, subtree: true });
+      }
+    }
+  } catch (_) {}
+
+  /* ==========================================================================
+     Feature 12: HEADER SCROLL EDGE
      ========================================================================== */
   try {
     const appShell = document.querySelector('#app-shell') || document.querySelector('.app-shell');
