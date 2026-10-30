@@ -58,7 +58,7 @@ svg.progress-ring {
   display: flex;
   gap: 0.6rem;
   align-items: center;
-  margin-bottom: 1.1rem;
+  margin-bottom: 0.9rem;
 }
 
 .todo-form input,
@@ -119,16 +119,32 @@ svg.progress-ring {
   box-shadow: 1px 1px 0 rgba(217, 111, 151, 0.2);
 }
 
+/* Meta Row: tighten vertical spacing to dividers */
+.feed-meta {
+  margin: 0.4rem 0 0.2rem !important;
+}
+
 /* List Dividers */
 .list-divider {
   list-style: none;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0.8rem 0.25rem 0.25rem;
-  margin: 0.4rem 0 0.1rem;
+  padding: 0.25rem 0.25rem 0.2rem;
+  margin: 0.2rem 0 0.65rem;
   user-select: none;
   pointer-events: none;
+}
+
+.list-divider.list-divider-undone {
+  margin-top: 0.05rem;
+  padding-top: 0.1rem;
+}
+
+.list-divider.list-divider-done {
+  margin-top: 1.2rem;
+  margin-bottom: 0.65rem;
+  opacity: 0.88;
 }
 
 .list-divider .divider-text {
@@ -148,17 +164,23 @@ svg.progress-ring {
   background-position: left center;
 }
 
+/* Ensure room between divider and its first card so washi tape doesn't overlap divider text */
+.list-divider + .todo-item {
+  margin-top: 18px !important;
+}
+
 /* Todo List Items - Index Card Style */
 .todo-item {
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-columns: 44px 1fr 44px;
-  align-items: center;
-  gap: 0.65rem;
-  min-height: 80px;
-  padding: 0.85rem 0.65rem 0.75rem;
-  margin-top: 10px;
+  grid-template-columns: 34px 1fr 44px;
+  column-gap: 0.45rem;
+  row-gap: 0.35rem;
+  align-items: start;
+  min-height: 76px;
+  padding: 0.85rem 0.6rem 0.75rem 0.55rem;
+  margin-top: 14px;
   border: 1.5px solid var(--ink-faint);
   border-radius: 6px;
   background: var(--paper-card);
@@ -233,12 +255,15 @@ svg.progress-ring {
   transform: translateX(-50%) rotate(2.2deg);
 }
 
-/* Hand-drawn Checkbox with rough SVG filter */
+/* Hand-drawn Checkbox: 44px tap target, tightened column, vertically centered with first line block */
 .todo-check {
   width: 44px;
   min-width: 44px;
   height: 44px;
   min-height: 44px;
+  margin-left: -5px;
+  margin-right: -5px;
+  margin-top: -9px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -247,11 +272,12 @@ svg.progress-ring {
   cursor: pointer;
   color: var(--green);
   touch-action: manipulation;
+  align-self: start;
 }
 
 .todo-check svg {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
 }
 
 .todo-check svg rect {
@@ -263,29 +289,33 @@ svg.progress-ring {
 
 .todo-item.done .todo-check svg rect {
   stroke: var(--green);
-  fill: color-mix(in srgb, var(--green) 15%, transparent);
+  fill: color-mix(in srgb, var(--green) 18%, transparent);
 }
 
-/* Delete Item button (min 44px touch target) */
+/* Delete Item button: ink-soft at .55 opacity, hover/active to --danger, 44px tap target */
 .delete-item {
   width: 44px;
   min-width: 44px;
   height: 44px;
   min-height: 44px;
+  margin-top: -9px;
+  align-self: start;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 0;
   background: transparent;
-  color: var(--ink-faint);
+  color: var(--ink-soft);
+  opacity: 0.55;
   cursor: pointer;
   touch-action: manipulation;
-  transition: color 150ms ease, transform 150ms var(--ease-pop);
+  transition: color 150ms ease, opacity 150ms ease, transform 150ms var(--ease-pop);
 }
 
 .delete-item:hover,
 .delete-item:active {
   color: var(--danger);
+  opacity: 1;
   transform: scale(1.1);
 }
 
@@ -297,6 +327,7 @@ svg.progress-ring {
 /* Text and Person Line */
 .todo-main {
   min-width: 0;
+  padding-top: 1px;
 }
 
 .todo-text {
@@ -357,7 +388,7 @@ svg.progress-ring {
 .todo-item.done .todo-text {
   text-decoration: line-through;
   text-decoration-color: var(--green);
-  text-decoration-thickness: 2.5px;
+  text-decoration-thickness: 2.2px;
   color: var(--ink-soft);
   opacity: 0.78;
 }
