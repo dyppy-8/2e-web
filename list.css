@@ -130,8 +130,8 @@ svg.progress-ring {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0.25rem 0.25rem 0.2rem;
-  margin: 0.2rem 0 0.65rem;
+  padding: 0.25rem 0.25rem 0;
+  margin: 0.2rem 0 0;
   user-select: none;
   pointer-events: none;
 }
@@ -143,7 +143,7 @@ svg.progress-ring {
 
 .list-divider.list-divider-done {
   margin-top: 1.2rem;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0;
   opacity: 0.88;
 }
 
@@ -164,9 +164,9 @@ svg.progress-ring {
   background-position: left center;
 }
 
-/* Ensure room between divider and its first card so washi tape doesn't overlap divider text */
+/* Ensure room between divider and its first card so washi tape doesn't overlap divider text (~26px total gap with grid-gap) */
 .list-divider + .todo-item {
-  margin-top: 18px !important;
+  margin-top: calc(26px - 0.72rem) !important;
 }
 
 /* Todo List Items - Index Card Style */

@@ -687,84 +687,88 @@
             }
           }
 
-          const prefersReducedMotion =
-            typeof window.matchMedia === 'function' &&
-            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          queueMicrotask(() => {
+            try {
+              const prefersReducedMotion =
+                typeof window.matchMedia === 'function' &&
+                window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-          const isSnapshotFresh = performance.now() - snapshotTime < 3000;
-          const flipItems = [];
-          const listRect = todoList.getBoundingClientRect();
+              const isSnapshotFresh = performance.now() - snapshotTime < 3000;
+              const flipItems = [];
+              const listRect = todoList.getBoundingClientRect();
 
-          // READ PHASE: Read all rects before any style writes to avoid layout thrash
-          if (!prefersReducedMotion && isSnapshotFresh && snapshot.size > 0) {
-            for (const el of settledItems) {
-              const id = el.dataset ? el.dataset.id : el.getAttribute('data-id');
-              if (id && snapshot.has(id)) {
-                const oldRelTop = snapshot.get(id);
-                const newRelTop = el.getBoundingClientRect().top - listRect.top;
-                const dy = oldRelTop - newRelTop;
-                if (Math.abs(dy) > 1) {
-                  flipItems.push({ el, dy });
+              // READ PHASE: Read all rects before any style writes to avoid layout thrash
+              if (!prefersReducedMotion && isSnapshotFresh && snapshot.size > 0) {
+                for (const el of settledItems) {
+                  const id = el.dataset ? el.dataset.id : el.getAttribute('data-id');
+                  if (id && snapshot.has(id)) {
+                    const oldRelTop = snapshot.get(id);
+                    const newRelTop = el.getBoundingClientRect().top - listRect.top;
+                    const dy = oldRelTop - newRelTop;
+                    if (Math.abs(dy) > 1) {
+                      flipItems.push({ el, dy });
+                    }
+                  }
                 }
               }
-            }
-          }
 
-          // Build fresh untransformed snapshot for all current items before transforms are set
-          // Skip items that currently have an inline transform (mid-animation)
-          const currentItems = todoList.querySelectorAll('.todo-item');
-          const baselineSnapshot = new Map();
-          for (let i = 0; i < currentItems.length; i++) {
-            const it = currentItems[i];
-            if (it.style && it.style.transform) continue;
-            const itId = it.dataset ? it.dataset.id : it.getAttribute('data-id');
-            if (itId) {
-              baselineSnapshot.set(itId, it.getBoundingClientRect().top - listRect.top);
-            }
-          }
+              // Build fresh untransformed snapshot for all current items before transforms are set
+              // Skip items that currently have an inline transform (mid-animation)
+              const currentItems = todoList.querySelectorAll('.todo-item');
+              const baselineSnapshot = new Map();
+              for (let i = 0; i < currentItems.length; i++) {
+                const it = currentItems[i];
+                if (it.style && it.style.transform) continue;
+                const itId = it.dataset ? it.dataset.id : it.getAttribute('data-id');
+                if (itId) {
+                  baselineSnapshot.set(itId, it.getBoundingClientRect().top - listRect.top);
+                }
+              }
 
-          // WRITE PHASE: Apply transforms
-          if (flipItems.length > 0) {
-            for (const item of flipItems) {
-              item.el.style.transition = 'none';
-              item.el.style.transform = `translateY(${item.dy}px)`;
-            }
+              // WRITE PHASE: Apply transforms
+              if (flipItems.length > 0) {
+                for (const item of flipItems) {
+                  item.el.style.transition = 'none';
+                  item.el.style.transform = `translateY(${item.dy}px)`;
+                }
 
-            requestAnimationFrame(() => {
-              try {
                 requestAnimationFrame(() => {
                   try {
-                    for (const item of flipItems) {
-                      const el = item.el;
-                      el.style.transition = 'transform 560ms cubic-bezier(.32,.72,0,1)';
-                      el.style.transform = '';
+                    requestAnimationFrame(() => {
+                      try {
+                        for (const item of flipItems) {
+                          const el = item.el;
+                          el.style.transition = 'transform 560ms cubic-bezier(.32,.72,0,1)';
+                          el.style.transform = '';
 
-                      let cleaned = false;
-                      const cleanup = () => {
-                        try {
-                          if (cleaned) return;
-                          cleaned = true;
-                          el.style.transition = '';
-                          el.removeEventListener('transitionend', onEnd);
-                        } catch (_) {}
-                      };
-                      const onEnd = (e) => {
-                        try {
-                          if (e.target === el && e.propertyName === 'transform') {
-                            cleanup();
-                          }
-                        } catch (_) {}
-                      };
-                      el.addEventListener('transitionend', onEnd);
-                      setTimeout(cleanup, 700);
-                    }
+                          let cleaned = false;
+                          const cleanup = () => {
+                            try {
+                              if (cleaned) return;
+                              cleaned = true;
+                              el.style.transition = '';
+                              el.removeEventListener('transitionend', onEnd);
+                            } catch (_) {}
+                          };
+                          const onEnd = (e) => {
+                            try {
+                              if (e.target === el && e.propertyName === 'transform') {
+                                cleanup();
+                              }
+                            } catch (_) {}
+                          };
+                          el.addEventListener('transitionend', onEnd);
+                          setTimeout(cleanup, 700);
+                        }
+                      } catch (_) {}
+                    });
                   } catch (_) {}
                 });
-              } catch (_) {}
-            });
-          }
+              }
 
-          firstRenderDone = true;
+              firstRenderDone = true;
+            } catch (_) {}
+          });
 
           // Snapshot at the end of observer callback
           snapshot = baselineSnapshot;

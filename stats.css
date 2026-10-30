@@ -555,6 +555,15 @@
   width: 100%;
 }
 
+.chart-col[data-count="0"],
+.chart-col.is-zero,
+.chart-col[style*="height:0px"],
+.chart-col[style*="height: 0px"],
+.chart-col[style*="height:0%"],
+.chart-col[style*="height: 0%"],
+.chart-col[style*="height:0;"],
+.chart-col[style*="height: 0;"],
+.chart-col[style*="height:0"],
 .chart-bar[data-count="0"],
 .chart-bar.is-zero,
 .chart-bar[style*="height: 0%"],
@@ -564,10 +573,10 @@
   min-height: 0 !important;
   height: 0 !important;
   border: none !important;
+  background: transparent !important;
   box-shadow: none !important;
   opacity: 0 !important;
   visibility: hidden !important;
-  display: none !important;
 }
 
 .chart-label,
