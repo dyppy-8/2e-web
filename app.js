@@ -717,9 +717,9 @@ function renderStats() {
       </div>
       <div class="chart-baseline"></div>
       <div class="chart-legend">
-        <span class="legend-item"><i style="background:var(--pink)"></i>Emir yaptı</span>
+        <span class="legend-item"><i style="background:var(--pink)"></i>yapılan</span>
         <span class="legend-item"><i class="hatched-icon pink"></i>kalan</span>
-        <span class="legend-item" style="margin-left:8px"><i style="background:var(--blue)"></i>Eylül yaptı</span>
+        <span class="legend-item" style="margin-left:8px"><i style="background:var(--blue)"></i>yapılan</span>
         <span class="legend-item"><i class="hatched-icon blue"></i>kalan</span>
       </div>
     </div>
@@ -728,8 +728,8 @@ function renderStats() {
     ${busiest && busiest.added > 0 ? `
       <div class="ruled-paper-note">
         <div class="note-pin"></div>
-        <p>En çok şeyi <strong>${monthName(busiest.date)}</strong> ayında eklediniz (<strong>${busiest.added}</strong> şey).</p>
-        <p>Bu ay <strong>${thisMonth}</strong> yeni şey eklendi${lastMonth ? `, geçen ay <strong>${lastMonth}</strong> eklenmişti.` : "."}</p>
+        <p>En çok aktiviteyi <strong>${monthName(busiest.date)}</strong> ayında eklediniz (<strong>${busiest.added}</strong> aktivite).</p>
+        <p>Bu ay <strong>${thisMonth}</strong> yeni aktivite eklendi${lastMonth ? `, geçen ay <strong>${lastMonth}</strong> eklenmişti.` : "."}</p>
       </div>
     ` : ""}
 
