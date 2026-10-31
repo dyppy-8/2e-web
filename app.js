@@ -631,7 +631,7 @@ function renderStats() {
     <div class="stats-card stats-race-card">
       <div class="race-washi-tape"></div>
       <div class="card-title">
-        <span>tatlı yarış</span>
+        <span>yarış</span>
       </div>
       <div class="race-tracks">
         <div class="race-track-row">

@@ -107,6 +107,8 @@
 
 .header-title .header-date {
   font-size: 0.76rem;
+  text-transform: none;
+  letter-spacing: 0.02em;
   color: var(--ink-soft);
   margin-top: 1px;
 }
