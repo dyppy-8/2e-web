@@ -444,7 +444,7 @@ function removeTodoNode(id) {
 
 function updateTodoMeta() {
   const count = els.todoList.querySelectorAll(".todo-item").length;
-  els.todoCount.textContent = `${count} şey`;
+  els.todoCount.textContent = `${count} aktivite`;
   els.emptyTodos.hidden = count > 0;
   const done = els.todoList.querySelectorAll(".todo-item.done").length;
   const percent = count ? Math.round((done / count) * 100) : 0;
@@ -496,7 +496,7 @@ function renderStats() {
     `<i style="width:${value}%;background:${PERSON_COLORS[name]}"></i>`).join("");
 
   if (!total) {
-    els.statsBody.innerHTML = `<p class="empty-state">Henüz buralar boş. Bir şeyler yaptıkça burası dolacak!</p>`;
+    els.statsBody.innerHTML = `<p class="empty-state">Henüz buralar boş. Aktiviteler yaptıkça burası dolacak!</p>`;
     return;
   }
 
@@ -517,7 +517,7 @@ function renderStats() {
   const eylulThis = thisMonthObj?.people?.["Eylül"]?.added || 0;
   let aheadText = "Bu ay başa baş gidiyorsunuz!";
   if (emirThis === 0 && eylulThis === 0) {
-    aheadText = "Bu ay henüz bir şey eklemediniz.";
+    aheadText = "Bu ay henüz aktivite eklemediniz.";
   } else if (emirThis > eylulThis) {
     aheadText = "Bu ay Emir önde gidiyor!";
   } else if (eylulThis > emirThis) {
@@ -526,17 +526,17 @@ function renderStats() {
 
   let summaryMain = "";
   if (total === 0) {
-    summaryMain = "Birlikte henüz bir şey eklemediniz.";
+    summaryMain = "Birlikte henüz aktivite eklemediniz.";
   } else if (done === 0) {
     summaryMain = total === 1
-      ? "Birlikte 1 şey eklediniz, henüz yapmadınız."
-      : `Birlikte ${total} şey eklediniz, henüz hiçbirini yapmadınız.`;
+      ? "Birlikte 1 aktivite eklediniz, henüz yapmadınız."
+      : `Birlikte ${total} aktivite eklediniz, henüz hiçbirini yapmadınız.`;
   } else if (done === total) {
     summaryMain = total === 1
-      ? "Birlikte 1 şey eklediniz, onu da yaptınız!"
-      : `Birlikte ${total} şey eklediniz, hepsini yaptınız!`;
+      ? "Birlikte 1 aktivite eklediniz, onu da yaptınız!"
+      : `Birlikte ${total} aktivite eklediniz, hepsini yaptınız!`;
   } else {
-    summaryMain = `Birlikte ${total} şey eklediniz, ${done} tanesini yaptınız.`;
+    summaryMain = `Birlikte ${total} aktivite eklediniz, ${done} tanesini yaptınız.`;
   }
 
   // Race calculations (relative to max added between the two)
@@ -740,7 +740,7 @@ function renderStats() {
         <div class="stat-row compact-month-stat">
           <div class="stat-row-head">
             <span>${monthName(m.date)}</span>
-            <strong>${m.added} şey</strong>
+            <strong>${m.added} aktivite</strong>
           </div>
           <div class="compact-month-meta">${m.done} yapıldı (%${pct(m.done, m.added)})</div>
           <div class="stat-split">${split(people.map((name) => ({ name, value: pct(m.people[name]?.added || 0, m.added) })))}</div>
@@ -780,7 +780,7 @@ function subscribeRealtime() {
 function showWebNotification(todo) {
   if (!settings.notify_new_items) return;
   if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
-  const title = todo.added_by ? `${todo.added_by} yeni bir şey ekledi` : "Yeni bir şey eklendi";
+  const title = todo.added_by ? `${todo.added_by} yeni bir aktivite ekledi` : "Yeni bir aktivite eklendi";
   const body = todo.body || "";
   try {
     if (navigator.serviceWorker && navigator.serviceWorker.controller) {

@@ -68,7 +68,7 @@
       hero.style.display = 'flex';
       const pct = Math.round((doneCount / totalCount) * 100);
 
-      const titleText = undoneCount > 0 ? 'şey bizi bekliyor' : 'hepsi tamam!';
+      const titleText = undoneCount > 0 ? 'aktivite bizi bekliyor' : 'hepsi tamam!';
       const countText = String(undoneCount);
       const subText = doneCount + ' / ' + totalCount + ' yapıldı';
 

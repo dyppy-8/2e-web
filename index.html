@@ -111,17 +111,17 @@
 
           <form id="todo-form" class="composer">
             <label class="sr-only" for="todo-input">Ekle</label>
-            <input id="todo-input" name="todo" type="text" maxlength="240" autocomplete="off" placeholder="Bir şey ekle..." required>
+            <input id="todo-input" name="todo" type="text" maxlength="240" autocomplete="off" placeholder="Aktivite ekle..." required>
             <button class="button button-primary" type="submit">Ekle</button>
           </form>
 
           <div class="feed-meta">
-            <span id="todo-count">0 şey</span>
+            <span id="todo-count">0 aktivite</span>
             <span id="sync-state">hazır</span>
           </div>
 
           <ul id="todo-list" class="todo-list" aria-live="polite"></ul>
-          <p id="empty-todos" class="empty-state">Henüz hiçbir şey yok.</p>
+          <p id="empty-todos" class="empty-state">Henüz hiçbir aktivite yok.</p>
         </div>
       </section>
 
@@ -181,7 +181,7 @@
           <input id="notify-toggle" type="checkbox">
           <span>
             <strong>Bildirim</strong>
-            <small>listeye yeni bir şey eklenince haberin olsun istersen bildirimleri açabilirsin.</small>
+            <small>listeye yeni bir aktivite eklenince haberin olsun istersen bildirimleri açabilirsin.</small>
           </span>
         </label>
 
@@ -224,9 +224,9 @@
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script src="./config.js?v=13"></script>
-    <script type="module" src="./app.js?v=26"></script>
+    <script type="module" src="./app.js?v=27"></script>
     <script type="module" src="./polish.js?v=4"></script>
-    <script type="module" src="./polish-list.js?v=2"></script>
+    <script type="module" src="./polish-list.js?v=3"></script>
     <script type="module" src="./polish-chrome.js?v=1"></script>
   </body>
 </html>
